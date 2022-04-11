@@ -5,11 +5,15 @@ import StyledButton from '../../components/StyledButton';
 import StyledInput from '../../components/StyledInput';
 import styles from './styles.js'
 
+import Popup from '../../components/Popup';
+
 // import StyledButton from './components/StyledButton';
 
 export const LoginScreen = () => {
     const [phone, setPhone] = useState('');
     const [password, setPassword] = useState('');
+    const [loginOK, toggleWarning] = useState(false);
+    const [loginContent, setLoginContent] = useState('')
     return (
         <View 
             style={styles.container}> 
@@ -27,14 +31,25 @@ export const LoginScreen = () => {
                 setValue={setPassword}
                 type='password'>
             </StyledInput>
+
+            <Popup
+                value={loginOK}
+                content={loginContent}
+                onPress={toggleWarning}
+            ></Popup>
             
             <StyledButton
                 type='primary'
                 title='Login'
-                onPress={()=>Login(
-                    phone,
-                    password
-                )}>
+                onPress={()=>{
+                    if (Login(phone, password) === true) {
+                        toggleWarning(true)
+                        setLoginContent('Login OK')
+                    } else {    
+                        toggleWarning(true)
+                        setLoginContent('Login failed')
+                    }
+                }}>
             </StyledButton>
         </View>
     )
@@ -46,4 +61,6 @@ export function Login (
 ) {
     // try to login....
     console.log("Trying to login..." + phone + " " + password)
+    return true
+
 }
