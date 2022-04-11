@@ -8,6 +8,7 @@ import StyledButton from './components/StyledButton';
 import StyledInput from './components/StyledInput'
 
 import {Login, LoginScreen} from './screens/login/index'
+import MainScreen from './screens/main/index';
 
 const Stack = createNativeStackNavigator();
 
@@ -28,27 +29,8 @@ const WelcomeScreen = ({navigation}) => {
         title={'Create new account'}
         onPress={() => {
           console.warn("Create a new account")
-
         }}
         />
-
-        {/* <StyledInput
-         placeholder={'Your phone'}
-         type='number'
-         content='phone' >
-        </StyledInput>
-
-        <StyledInput
-          placeholder={'Password'}
-          type='normal'
-          content='password'>
-
-        </StyledInput>
-        <StyledButton
-            type='primary'
-            title='Login'
-            onPress={()=>Login(this.state.phone, this.state.password)}>
-        </StyledButton> */}
 
       </View>
     </View>
@@ -63,6 +45,8 @@ export default function App() {
                       name='Welcome screen'/>
         <Stack.Screen component={LoginScreen}
                       name='Login'/>
+        <Stack.Screen component={MainScreen}
+                      name='Main screen'/>
       </Stack.Navigator>
     </NavigationContainer>
   );

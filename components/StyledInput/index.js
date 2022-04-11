@@ -8,7 +8,7 @@ const StyledInput = (props) => {
     const pch = props.placeholder
     const val = props.value
     const onChangeTextFn = props.setValue
-    const keyboardType = props.type === 'number' ? 'numeric' : 'text';
+    const keyboardType = props.type === 'number' ? 'numeric' : 'default';
     const pwdProp = props.type === 'password' ? true : false
     return (
         <View style={styles.containter}>

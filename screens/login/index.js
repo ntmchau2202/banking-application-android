@@ -4,12 +4,17 @@ import { StyleSheet, Text, View } from 'react-native';
 import StyledButton from '../../components/StyledButton';
 import StyledInput from '../../components/StyledInput';
 import styles from './styles.js'
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator }from '@react-navigation/native-stack';
+import { useNavigation } from '@react-navigation/native';
+
 
 import Popup from '../../components/Popup';
 
-// import StyledButton from './components/StyledButton';
+const Stack = createNativeStackNavigator();
 
-export const LoginScreen = () => {
+export const LoginScreen = (props) => {
+    const navigation = useNavigation();
     const [phone, setPhone] = useState('');
     const [password, setPassword] = useState('');
     const [loginOK, toggleWarning] = useState(false);
@@ -43,8 +48,7 @@ export const LoginScreen = () => {
                 title='Login'
                 onPress={()=>{
                     if (Login(phone, password) === true) {
-                        toggleWarning(true)
-                        setLoginContent('Login OK')
+                        navigation.navigate('Main screen')
                     } else {    
                         toggleWarning(true)
                         setLoginContent('Login failed')
