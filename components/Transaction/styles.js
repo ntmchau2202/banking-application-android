@@ -7,10 +7,13 @@ const styles = StyleSheet.create({
     },
     
     txnContainer: {
-        // flex: 1,
+      flexDirection: 'row',
       backgroundColor: 'transparent',
       width: '100%',
       height: 0.1 * Dimensions.get('window').height,
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      margin: 5,
     },
 
     text: {
@@ -19,10 +22,33 @@ const styles = StyleSheet.create({
       color: 'black'
     },
 
-    line: {
-      height: 0.5,
-      width: "100%",
-      backgroundColor:"rgba(255,255,255,0.5)"
+    image: {
+      flex: 1,
+      width: '30%',
+      height: '100%',
+    },
+
+    imageContainer: {
+      borderColor: 'black',
+      borderWidth: 1,
+      flex: 0.3,
+      backgroundColor: 'transparent',
+      // width: '10%',
+      width: 0.1 * Dimensions.get('window').height,
+      height: 0.1 * Dimensions.get('window').height,
+      // height: '10%',
+      flexDirection: 'row',
+      margin: 5,
+    },
+
+    informationContainer: {
+      flex: 1,
+      width: 0.9 * Dimensions.get('window').height,
+      height: 0.1 * Dimensions.get('window').height,
+      alignContent: 'flex-start',
+      margin: 5,
+      paddingTop: 5,
+      // alignItems: 'center',
     }
 
   });

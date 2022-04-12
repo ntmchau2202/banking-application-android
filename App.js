@@ -1,3 +1,4 @@
+// import { registerRootComponent } from 'expo';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
@@ -20,7 +21,7 @@ const WelcomeScreen = ({navigation}) => {
           type='primary'
           title={'Login'}
           onPress={()=> {
-            console.warn("Logging in");
+            // console.warn("Logging in");
             navigation.navigate('Login')
           }}/>
 
@@ -28,7 +29,7 @@ const WelcomeScreen = ({navigation}) => {
         type='secondary'
         title={'Create new account'}
         onPress={() => {
-          console.warn("Create a new account")
+          // console.warn("Create a new account")
         }}
         />
 
@@ -66,3 +67,5 @@ const styles = StyleSheet.create({
    width: '100%',
   }
 });
+
+// registerRootComponent(App);
