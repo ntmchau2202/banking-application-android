@@ -33,10 +33,8 @@ const styles = StyleSheet.create({
       borderWidth: 1,
       flex: 0.3,
       backgroundColor: 'transparent',
-      // width: '10%',
       width: 0.1 * Dimensions.get('window').height,
       height: 0.1 * Dimensions.get('window').height,
-      // height: '10%',
       flexDirection: 'row',
       margin: 5,
     },
@@ -48,7 +46,6 @@ const styles = StyleSheet.create({
       alignContent: 'flex-start',
       margin: 5,
       paddingTop: 5,
-      // alignItems: 'center',
     }
 
   });

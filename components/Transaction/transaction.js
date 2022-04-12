@@ -1,4 +1,5 @@
-import { Image, Text, View } from 'react-native'
+import { TouchableOpacity, Image, Text, View } from 'react-native'
+import { useNavigation } from '@react-navigation/native'
 import styles from './styles'
 
 export class OpenTransaction {
@@ -22,10 +23,17 @@ export class OpenTransaction {
         }
     }
 
+    showDetails() {
+        const navigation = useNavigation()
+        navigation.navigate()
+    }
+
     render() {
         return (
-            <View style={styles.txnContainer}>
-                <View style={styles.imageContainer}>                
+            <TouchableOpacity style={styles.txnContainer}
+                                onPress={this.showDetails}>
+                <View style={styles.imageContainer}>    
+
                 {/* <View> */}
                     <Image style={styles.image}
                         source={require('./open.jpg')}></Image>
@@ -48,7 +56,7 @@ export class OpenTransaction {
                         Time: {this.state.openTime}
                     </Text>
                 </View>
-            </View>
+            </TouchableOpacity>
         )
     }
 }
@@ -68,9 +76,14 @@ export class SettleTransaction {
         }
     }
 
+    showDetails() {
+
+    }
+
     render() {
         return (
-            <View style={styles.txnContainer}>
+            <TouchableOpacity style={styles.txnContainer}
+                            onPress={this.showDetails}>
                 <View style={styles.imageContainer}>
                 {/* <View> */}
                     <Image style={styles.image}
@@ -94,7 +107,7 @@ export class SettleTransaction {
                         Time: {this.state.settleTime}
                     </Text>
                 </View>
-            </View>
+            </TouchableOpacity>
         )
     }
 }

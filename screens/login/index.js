@@ -1,17 +1,13 @@
 import React, { useState } from 'react';
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { View } from 'react-native';
 import StyledButton from '../../components/StyledButton';
 import StyledInput from '../../components/StyledInput';
 import styles from './styles.js'
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator }from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
 
 
 import Popup from '../../components/Popup';
 
-const Stack = createNativeStackNavigator();
 
 export const LoginScreen = (props) => {
     const navigation = useNavigation();
