@@ -38,14 +38,15 @@ const TableRowAttribute = (props) => {
 
 
 const TransactionDetails = (props) => {
+    const mapProps = Object.entries(props).map(([k, v]) => ({key: k, value: v}))
     return (
         <View style={styles.container}> 
             <View style={styles.tableContainer}>
                 <FlatList
-                    data={prop}
+                    data={mapProps}
                     renderItem={({item}) => <TableRowAttribute 
-                                                    name={item.name}
-                                                    content={item.content}/>}></FlatList>
+                                                    name={item.key}
+                                                    content={item.value}/>}></FlatList>
             </View>
         </View>
     )

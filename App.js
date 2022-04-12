@@ -14,6 +14,14 @@ import MainScreen from './screens/main/index';
 const Stack = createNativeStackNavigator();
 
 const WelcomeScreen = ({navigation}) => {
+  let props = {
+    name: "Hi",
+    age: 18,
+  }
+
+  const mapProps = Object.entries(props).map(([key, val]) => ({key: key, val: val}))
+  console.log(mapProps)
+
   return ( 
     <View style={styles.buttonContainer}>
        <View style={styles.container}>
