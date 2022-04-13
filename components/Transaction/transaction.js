@@ -9,7 +9,7 @@ export class OpenTransaction {
             txnHash: props.txn.txnHash,
             blockHash: props.txn.blockHash,
             blockNumber: props.txn.blockNumber,
-            customerID: props.txn.customerId,
+            customerID: props.txn.customerID,
             savingsAccountID: props.txn.savingsAccountID,
             savingsType: props.txn.savingsType,
             savingsPeriod: props.txn.savingsPeriod,
@@ -23,15 +23,14 @@ export class OpenTransaction {
         }
     }
 
-    showDetails() {
-        const navigation = useNavigation()
-        navigation.navigate()
-    }
-
     render() {
+        const navigation = useNavigation()
+        const data = this.state
         return (
             <TouchableOpacity style={styles.txnContainer}
-                                onPress={this.showDetails}>
+                                onPress={() => {
+                                    navigation.navigate('Transaction details', data)
+                                }}>
                 <View style={styles.imageContainer}>    
 
                 {/* <View> */}
@@ -68,7 +67,7 @@ export class SettleTransaction {
             txnHash: props.txn.txnHash,
             blockHash: props.txn.blockHash,
             blockNumber: props.txn.blockNumber,
-            customerID: props.txn.customerId,
+            customerID: props.txn.customerID,
             savingsAccountID: props.txn.savingsAccountID,
             actualInterestAmount: props.txn.actualInterestAmount,
             settleTime: props.txn.settleTime,
@@ -76,14 +75,14 @@ export class SettleTransaction {
         }
     }
 
-    showDetails() {
-
-    }
-
     render() {
+        const navigation = useNavigation()
+        const data = this.state
         return (
             <TouchableOpacity style={styles.txnContainer}
-                            onPress={this.showDetails}>
+                                onPress={() => {
+                                    navigation.navigate('Transaction details', data)
+                                }}>
                 <View style={styles.imageContainer}>
                 {/* <View> */}
                     <Image style={styles.image}

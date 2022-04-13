@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
-import { View, FlatList} from 'react-native';
+import { Text, View, TouchableOpacity, FlatList} from 'react-native';
 import StyledButton from '../../components/StyledButton';
 import StyledInput from '../../components/StyledInput';
 import styles from './styles.js'
 import { useNavigation } from '@react-navigation/native';
-
+import { FieldMap } from './fieldmap';
 
 const TableColumnTitle = (props) => {
     return ( 
-        <View style={styles.tableColumnTitle}>
+        // <View style={styles.tableColumnTitle}>
+        <View>
             <Text styles={styles.tableColumnTitleText}>
                 {props.name}
             </Text>
@@ -18,7 +19,8 @@ const TableColumnTitle = (props) => {
 
 const TableColumnContent = (props) => {
     return ( 
-        <View style={styles.tableColumnContent}>
+        // <View style={styles.tableColumnContent}>
+        <View>
             <Text style={styles.tableColumnContentText}>
                 {props.content}
             </Text>
@@ -28,17 +30,19 @@ const TableColumnContent = (props) => {
 
 const TableRowAttribute = (props) => {
     return (
-        <View style={styles.tableRow}>
+        <TouchableOpacity style={styles.tableRow}>
             <TableColumnTitle name={props.name}/>
             <TableColumnContent content={props.content}/>
-        </View>
+        </TouchableOpacity>
     )
 }
 
 
 
-const TransactionDetails = (props) => {
-    const mapProps = Object.entries(props).map(([k, v]) => ({key: k, value: v}))
+const TransactionDetails = (navigation) => {
+    console.log("navigation:", navigation)
+    console.log("props:", navigation.route.params)
+    const mapProps = Object.entries(navigation.route.params).map(([k, v]) => ({key: FieldMap[k], value: v}))
     return (
         <View style={styles.container}> 
             <View style={styles.tableContainer}>

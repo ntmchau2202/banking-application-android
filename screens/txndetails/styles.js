@@ -12,18 +12,35 @@ const styles = StyleSheet.create({
     },
 
     tableRow: {
-
+        flexDirection: 'row',
+        backgroundColor: 'transparent',
+        height: 0.05* Dimensions.get('window').height,
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        margin: 5,
+        borderBottomWidth: 1,
     },
 
     tableColumnTitle: {
-
+        borderColor: 'black',
+        borderWidth: 1,
+        flex: 0.4,
+        backgroundColor: 'transparent',
+        width: 0.3 * Dimensions.get('window').width,
+        height: 0.05 * Dimensions.get('window').height,
+        flexDirection: 'row',
+        margin: 5,
     },
 
     tableColumnContent: {
-
+        flexDirection: 'row',
+        flex: 1,
+        width: 0.7 * Dimensions.get('window').width,
+        height: 0.05 * Dimensions.get('window').height,
+        alignContent: 'flex-end',
+        margin: 5,
+        paddingTop: 5,
     },
-
-
 
     tableColumnTitleText: {
         fontSize: 12,
@@ -31,7 +48,8 @@ const styles = StyleSheet.create({
     },
 
     tableColumnContentText: {
-        
+        fontSize: 12,
+        textTransform: 'uppercase',
     }
 
   });

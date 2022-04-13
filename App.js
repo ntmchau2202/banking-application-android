@@ -3,7 +3,7 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator }from '@react-navigation/native-stack';
-
+import TransactionDetails from './screens/txndetails';
 
 import StyledButton from './components/StyledButton';
 import StyledInput from './components/StyledInput'
@@ -43,6 +43,7 @@ const WelcomeScreen = ({navigation}) => {
 
       </View>
     </View>
+    
   )
 }
 
@@ -56,6 +57,8 @@ export default function App() {
                       name='Login'/>
         <Stack.Screen component={MainScreen}
                       name='Main screen'/>
+        <Stack.Screen component={TransactionDetails}
+                      name='Transaction details'/>
       </Stack.Navigator>
     </NavigationContainer>
   );

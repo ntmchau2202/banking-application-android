@@ -1,5 +1,6 @@
 import React from 'react';
 import { View } from 'react-native';
+import { SearchBar } from 'react-native-elements';
 
 import TransactionList from '../../components/Transaction';
 
@@ -7,9 +8,14 @@ import TransactionList from '../../components/Transaction';
 const MainScreen = (props) => {
     return(
         <View>
+            <SearchBar placeholder='Enter bank account here...'/>
             <TransactionList/>
         </View>
     )
+}
+
+const search = (key) => {
+
 }
 
 
