@@ -10,17 +10,12 @@ import StyledInput from './components/StyledInput'
 
 import {Login, LoginScreen} from './screens/login/index'
 import MainScreen from './screens/main/index';
+import MainMenu from './screens/menu';
+import TransactionListScreen from './screens/main/index';
 
 const Stack = createNativeStackNavigator();
 
 const WelcomeScreen = ({navigation}) => {
-  let props = {
-    name: "Hi",
-    age: 18,
-  }
-
-  const mapProps = Object.entries(props).map(([key, val]) => ({key: key, val: val}))
-  console.log(mapProps)
 
   return ( 
     <View style={styles.buttonContainer}>
@@ -29,7 +24,6 @@ const WelcomeScreen = ({navigation}) => {
           type='primary'
           title={'Login'}
           onPress={()=> {
-            // console.warn("Logging in");
             navigation.navigate('Login')
           }}/>
 
@@ -37,12 +31,16 @@ const WelcomeScreen = ({navigation}) => {
         type='secondary'
         title={'Create new account'}
         onPress={() => {
-          // console.warn("Create a new account")
         }}
         />
 
       </View>
     </View>
+    // <View>
+    //       <MainMenu content='Chou chou'
+    //           name='N-0123'/>
+    // </View>
+
     
   )
 }
@@ -55,8 +53,10 @@ export default function App() {
                       name='Welcome screen'/>
         <Stack.Screen component={LoginScreen}
                       name='Login'/>
-        <Stack.Screen component={MainScreen}
-                      name='Main screen'/>
+        <Stack.Screen component={MainMenu}
+                      name='Main menu'/>
+        <Stack.Screen component={TransactionListScreen}
+                      name='Transaction list'/>
         <Stack.Screen component={TransactionDetails}
                       name='Transaction details'/>
       </Stack.Navigator>

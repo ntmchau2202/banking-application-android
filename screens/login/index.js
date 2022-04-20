@@ -44,7 +44,10 @@ export const LoginScreen = (props) => {
                 title='Login'
                 onPress={()=>{
                     if (Login(phone, password) === true) {
-                        navigation.navigate('Main screen')
+                        navigation.navigate('Main menu', {
+                            name: 'N-0001',
+                            content: 'Chou Chou',
+                        })
                     } else {    
                         toggleWarning(true)
                         setLoginContent('Login failed')

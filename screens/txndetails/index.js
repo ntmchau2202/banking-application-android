@@ -56,4 +56,19 @@ const TransactionDetails = (navigation) => {
     )
 }
 
+export const TransactionConfirmation = (navigation) => {
+    const txnDetails = TransactionDetails(navigation)
+    return(
+        <View>
+            {txnDetails}
+            <View>
+                <StyledButton title='Confirm'
+                            onPress=''/>
+                <StyledButton title='Decline'
+                            onPress=''/>
+            </View>
+        </View>
+    )
+}
+
 export default TransactionDetails 

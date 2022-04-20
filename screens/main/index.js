@@ -5,7 +5,7 @@ import { SearchBar } from 'react-native-elements';
 import TransactionList from '../../components/Transaction';
 
 
-const MainScreen = (props) => {
+const TransactionListScreen = (props) => {
     return(
         <View>
             <SearchBar placeholder='Enter bank account here...'/>
@@ -21,4 +21,4 @@ const search = (key) => {
 
 
 
-export default MainScreen
+export default TransactionListScreen
