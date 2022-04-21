@@ -3,17 +3,17 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator }from '@react-navigation/native-stack';
-import TransactionDetails from './screens/txndetails';
-import { TransactionConfirmation } from './screens/txndetails';
+import TransactionDetails from './screens/TransactionDetailsScreen';
+import { TransactionConfirmation } from './screens/TransactionDetailsScreen';
 
 import StyledButton from './components/StyledButton';
 import StyledInput from './components/StyledInput'
 
-import {Login, LoginScreen} from './screens/login/index'
-import MainScreen from './screens/main/index';
-import MainMenu from './screens/menu';
-import TransactionListScreen from './screens/main/index';
-import PendingTransactionScreen from './screens/pendinglist';
+import {Login, LoginScreen} from './screens/LoginScreen/index'
+import MainScreen from './screens/TransactionScreen/index';
+import MainMenu from './screens/MainMenuScreen';
+import TransactionListScreen from './screens/TransactionScreen/index';
+import PendingTransactionScreen from './screens/PendingTransactionScreen';
 
 const Stack = createNativeStackNavigator();
 
