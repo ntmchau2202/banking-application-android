@@ -21,13 +21,14 @@ export function GetUserTransaction(phone) {
 }
 
 export function ConfirmTransaction(transaction) {
-
+    // TODO: sign transaction and CONNECT IMMEDIATELY TO THE CONTRACT WITHOUT NOTIFYING THE SERVER
+    // THE SERVER MUST FETCH INFORMATION VIA SUBCRIBER
 }
 
 export function DeclineTransaction(transaction) {
-
+    // just drop transaction
 }
 
 export function SearchTransactionBySavingsAccount(savingsAccountID) {
-
+    // CONNECT TO THE CONTRACT IMMEDIATELLY
 }

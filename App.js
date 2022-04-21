@@ -1,16 +1,12 @@
 // import { registerRootComponent } from 'expo';
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet,  View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator }from '@react-navigation/native-stack';
-import TransactionDetails from './screens/TransactionDetailsScreen';
 import { TransactionConfirmation } from './screens/TransactionDetailsScreen';
-
+import TransactionDetails from './screens/TransactionDetailsScreen';
 import StyledButton from './components/StyledButton';
-import StyledInput from './components/StyledInput'
 
-import {Login, LoginScreen} from './screens/LoginScreen/index'
-import MainScreen from './screens/TransactionScreen/index';
+import {LoginScreen} from './screens/LoginScreen/index'
 import MainMenu from './screens/MainMenuScreen';
 import TransactionListScreen from './screens/TransactionScreen/index';
 import PendingTransactionScreen from './screens/PendingTransactionScreen';

@@ -12,6 +12,9 @@
   "dependencies": {
     "@react-navigation/native": "^6.0.10",
     "@react-navigation/native-stack": "^6.6.1",
+    "ethereumjs-common": "^1.5.2",
+    "ethereumjs-tx": "^2.1.2",
+    "ethers": "^5.6.4",
     "expo": "~44.0.0",
     "expo-status-bar": "~1.2.0",
     "react": "17.0.1",
@@ -21,7 +24,8 @@
     "react-native-elements": "^3.0.0",
     "react-native-safe-area-context": "3.3.2",
     "react-native-screen": "^1.0.1",
-    "react-native-web": "0.17.1"
+    "react-native-web": "0.17.1",
+    "web3": "^1.7.3"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9"
