@@ -1,23 +1,22 @@
 import React from 'react';
 import { FlatList, View } from 'react-native';
 import styles from './styles.js'
-import txns from './txn'
 import { OpenTransaction, SettleTransaction } from './transaction';
 
 const TransactionItem = (props) => {
     const txnType = props.txn.name 
     if (txnType === 'Open account') {
-        return new OpenTransaction(props).render()
+        return new OpenTransaction(props).render('Transaction details')
     } else if (txnType === 'Settle account') {
-        return new SettleTransaction(props).render()
+        return new SettleTransaction(props).render('Transaction details')
     }
 }
 
-const TransactionList = () => {
+const TransactionList = (props) => {
     return (
         <View style={styles.container}>
             <FlatList 
-             data={txns}
+             data={props.content}
              renderItem={({item}) => <TransactionItem txn={item}/>}
              keyExtractor={item => item.txnHash}/>
         </View>

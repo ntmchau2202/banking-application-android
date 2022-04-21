@@ -63,7 +63,6 @@ export function Login (
     password,
 ) {
     // try to login....
-    console.log("Trying to login..." + phone + " " + password)
     return true
 
 }

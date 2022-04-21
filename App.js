@@ -4,6 +4,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator }from '@react-navigation/native-stack';
 import TransactionDetails from './screens/txndetails';
+import { TransactionConfirmation } from './screens/txndetails';
 
 import StyledButton from './components/StyledButton';
 import StyledInput from './components/StyledInput'
@@ -12,6 +13,7 @@ import {Login, LoginScreen} from './screens/login/index'
 import MainScreen from './screens/main/index';
 import MainMenu from './screens/menu';
 import TransactionListScreen from './screens/main/index';
+import PendingTransactionScreen from './screens/pendinglist';
 
 const Stack = createNativeStackNavigator();
 
@@ -59,6 +61,10 @@ export default function App() {
                       name='Transaction list'/>
         <Stack.Screen component={TransactionDetails}
                       name='Transaction details'/>
+        <Stack.Screen component={PendingTransactionScreen}
+                      name='Pending transaction'/>
+        <Stack.Screen component={TransactionConfirmation}
+                      name='Confirm transaction'/>
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -5,11 +5,11 @@ import { SearchBar } from 'react-native-elements';
 import TransactionList from '../../components/Transaction';
 
 
-const TransactionListScreen = (props) => {
+const TransactionListScreen = (navigation) => {
     return(
         <View>
             <SearchBar placeholder='Enter bank account here...'/>
-            <TransactionList/>
+            <TransactionList content={navigation.route.params}/>
         </View>
     )
 }

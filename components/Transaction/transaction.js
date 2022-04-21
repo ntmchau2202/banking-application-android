@@ -23,13 +23,13 @@ export class OpenTransaction {
         }
     }
 
-    render() {
+    render(navName) {
         const navigation = useNavigation()
         const data = this.state
         return (
             <TouchableOpacity style={styles.txnContainer}
                                 onPress={() => {
-                                    navigation.navigate('Transaction details', data)
+                                    navigation.navigate(navName, data)
                                 }}>
                 <View style={styles.imageContainer}>    
 
@@ -75,13 +75,13 @@ export class SettleTransaction {
         }
     }
 
-    render() {
+    render(navName) {
         const navigation = useNavigation()
         const data = this.state
         return (
             <TouchableOpacity style={styles.txnContainer}
                                 onPress={() => {
-                                    navigation.navigate('Transaction details', data)
+                                    navigation.navigate(navName, data)
                                 }}>
                 <View style={styles.imageContainer}>
                 {/* <View> */}

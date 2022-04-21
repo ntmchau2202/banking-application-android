@@ -40,11 +40,9 @@ const TableRowAttribute = (props) => {
 
 
 const TransactionDetails = (navigation) => {
-    console.log("navigation:", navigation)
-    console.log("props:", navigation.route.params)
     const mapProps = Object.entries(navigation.route.params).map(([k, v]) => ({key: FieldMap[k], value: v}))
     return (
-        <View style={styles.container}> 
+        // <View style={styles.container}> 
             <View style={styles.tableContainer}>
                 <FlatList
                     data={mapProps}
@@ -52,21 +50,29 @@ const TransactionDetails = (navigation) => {
                                                     name={item.key}
                                                     content={item.value}/>}></FlatList>
             </View>
-        </View>
+        // </View>
     )
 }
 
 export const TransactionConfirmation = (navigation) => {
     const txnDetails = TransactionDetails(navigation)
-    return(
-        <View>
-            {txnDetails}
-            <View>
-                <StyledButton title='Confirm'
-                            onPress=''/>
-                <StyledButton title='Decline'
-                            onPress=''/>
+    return (
+        <View style={styles.confirmationContainer}>
+            <View style={styles.confirmationInfo}>
+                {txnDetails}
             </View>
+            <View style={styles.confirmationButton}>
+            <StyledButton type='primary'
+                    title='Confirm'
+                    onPress=''
+                    />
+            <StyledButton type='secondary' 
+                        title='Decline'
+                        onPress=''/>
+            </View>
+            
+            
+
         </View>
     )
 }

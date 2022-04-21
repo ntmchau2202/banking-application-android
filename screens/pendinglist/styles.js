@@ -1,3 +1,4 @@
+
 import { StyleSheet } from "react-native";
 
 const styles = StyleSheet.create({
@@ -10,5 +11,4 @@ const styles = StyleSheet.create({
         fontSize: 12,
         textTransform: 'uppercase',
     }
-
   });

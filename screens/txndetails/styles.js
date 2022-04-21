@@ -8,7 +8,7 @@ const styles = StyleSheet.create({
 
 
     tableContainer: {
-
+        padding: 10,
     },
 
     tableRow: {
@@ -50,6 +50,23 @@ const styles = StyleSheet.create({
     tableColumnContentText: {
         fontSize: 12,
         textTransform: 'uppercase',
+    },
+
+    confirmationContainer: {
+        flex: 1,
+        width: '100%',
+        height: 2 * Dimensions.get('screen').height,
+        flexDirection: 'column',
+        alignItems: 'stretch',
+    },
+
+    confirmationInfo: {
+        flex: 5,
+    },
+
+    confirmationButton: {
+        padding: 10,
+        flex: 1,
     }
 
   });

@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, Image, TouchableOpacity} from 'react-native';
 import styles from './styles';
+import txns from './txn'
 import { useNavigation } from '@react-navigation/native';
 
 const UserBar = (props) => {
@@ -22,22 +23,24 @@ const Menu = () => {
     return( 
         <View style={styles.menuContainer}>
             <MenuOption title='Your account'
+                        name=''
                         content=''/>
             <MenuOption title='Your transactions'
-                        content='Transaction list'/>
+                        name='Transaction list'
+                        content={txns}/>
             <MenuOption title='Pending transactions'
-                        content=''/>
+                        name='Pending transaction'
+                        content={txns}/>
         </View>
     )
 }
 
 const MenuOption = (props) => {
     const navigation = useNavigation();
-    console.log(props.content)
     return (
         <TouchableOpacity style={styles.menuOption}
                           onPress={() => {
-                              navigation.navigate(props.content)
+                              navigation.navigate(props.name, props.content)
                           }}>
             <Text style={styles.menuText}>
                 {props.title}
