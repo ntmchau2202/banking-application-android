@@ -55,25 +55,33 @@ class Client {
 
     // ok
     async login(phone, password) {
+        const instance = this
         let customerInfo = null
         try { 
             await this.httpClient.post('/account/login', this.#createMessage(command.login, {
                 "customer_phone": phone,
                 "password": password,
             })).then(function (response) {
-                if (response.data.status === status.error) {
-                    throw this.#errorNotification("login failed", err)
+                if (response.status === 200) {
+                    try {
+                        customerInfo = Render.renderLoginInfo(response.data)
+                        return customerInfo
+                    } catch (error) {
+                        throw "error rendering customer info: " + error
+                    }
                 } else {
-                    customerInfo = Render.renderLoginInfo(response.data)
-                    return customerInfo
+                    console.log("error message:", response.data.details.message)
+                    throw response.data.details.message
                 }
             }).catch(function (error) {
-                console.log("Error when posting:", error)
-                throw this.#errorNotification("unexpected error when logging in", error)
+                if (error.hasOwnProperty('response')) {
+                    throw error.response.data.details.message
+                } else {
+                    throw error
+                }
             })
         } catch (error) {
-            console.log("Unexpected error:", error)
-            throw this.#errorNotification("error logging in", error)
+            throw instance.#errorNotification("error logging in", error)
         }
         return customerInfo
     }
@@ -86,34 +94,36 @@ class Client {
             var txnHash = ""
             await this.httpClient.post("/savings/create", this.#createMessage(command.createAccount, txn))
             .then(function (response) {
-                if (response.data.status === status.error) {
-                    throw instance.#errorNotification("error creating account", error)
+                if (response.status === 200) {
+                    try {
+                        signedMsgFromBank = response.signed_message
+                        txnHash = instance.blockchainInteractor.openTransaction(txn, signedMsgFromBank)
+                    } catch (error) {
+                        throw "error creating transaction on blockchain: " + error
+                    }
                 } else {
-                    // step 2: interact with the blockchain to save transaction
-                    signedMsgFromBank = response.signed_message
-                    txnHash = instance.blockchainInteractor.openTransaction(txn, signedMsgFromBank)
+                    throw response.data.details.message
                 }
             }).catch(function (error) {
-                console.log(error)
-                // throw this.#errorNotification("error creating account", error)
+                if (error.hasOwnProperty('response')) {
+                    throw error.response.data.details.message
+                } else {
+                    throw error
+                }
             })
             // step 3: sending back txnHash for confirmation
             this.httpClient.post("/savings/confirmation", this.#createMessage(command.confirm, {
                 "txn_hash": txnHash,
                 "savingsaccount_id": txn.savingsAccountID,
                 "action": command.createAccount,
-            }), {
-                validateStatus: function (status) {
-                    if (status != 204) {
-                        throw this.#errorNotification("error sending back confirmation hash", error) 
-                    } 
-                    return
+            })).then(function (response) {
+                if (response.status != 204) {
+                    throw "error sending back confirmation hash: " + error
                 }
             }).catch(function (error) {
-                throw this.#errorNotification("error sending back confirmation hash", error)
+                throw error
             })
         } catch (error) {
-            console.log(error)
             throw this.#errorNotification("error when open account", error)
         }
     }
@@ -125,31 +135,36 @@ class Client {
             var signedMsgFromBank = ""
             await this.httpClient.post("/savings/settle", this.#createMessage(command.settleAccount, txn))
             .then(function (response) {
-                if (response.data.status === status.error) {
-                    throw this.#errorNotification("error settling account", error)
+                if (response.status === 200) {
+                    try {
+                        // step 2: send transaction to get receipt on blockchain
+                        signedMsgFromBank = response.signed_message
+                        return instance.blockchainInteractor.settleTransaction(txn, signedMsgFromBank)
+                    } catch (error) {
+                        throw "error creating transaction on blockchain: " + error
+                    }
                 } else {
-                    // step 2: send transaction to get receipt on blockchain
-                    signedMsgFromBank = response.signed_message
-                    return instance.blockchainInteractor.settleTransaction(txn, signedMsgFromBank)
+                    throw response.data.details.message
                 }
+                
             }).catch(function (error) {
-                console.log(error)
-                throw instance.#errorNotification("error settling account", error)
+                if (error.hasOwnProperty('response')) {
+                    throw error.response.data.details.message
+                } else {
+                    throw error
+                }
             })
             // step 3: sending back txnHash to bank server
             instance.httpClient.post("/savings/confirmation", instance.#createMessage(command.confirm, {
                 "txn_hash": txnHash,
                 "savingsaccount_id": txn.savingsAccountID,
                 "action": command.settleAccount,
-            }), {
-                validateStatus: function (status) {
-                    if (status != 204) {
-                        throw instance.#errorNotification("error sending back confirmation hash", error) 
-                    } 
-                    return
-                }
+            })).then(function (response) {
+                    if (response.status != 204) {
+                        throw "error sending back confirmation hash: " + error
+                    }
             }).catch(function (error) {
-                throw instance.#errorNotification("error sending back confirmation hash", error)
+                throw error
             })
         } catch (error) {
             console.log(error)
@@ -159,24 +174,32 @@ class Client {
 
     // ok
     async fetchInfo(phone) {
+        const instance = this
         let customerInfo = null
         try {
-            await this.httpClient.post("/account/info", this.#createMessage(command.fetchInfo, {
+            await instance.httpClient.post("/account/info", this.#createMessage(command.fetchInfo, {
                 "customer_phone": phone,
-            }))
-            .then(function (response) {
-                if (response.data.status === status.error) {
-                    throw this.#errorNotification("fetch data failed", err)
+            })).then(function (response) {
+                if (response.status === 200) {
+                    try {
+                        customerInfo = Render.renderLoginInfo(response.data)
+                        return customerInfo
+                    } catch (error) {
+                        throw "error rendering customer info: " + error
+                    }
                 } else {
-                    customerInfo = Render.renderLoginInfo(response.data)
+                    console.log("error message:", response.data.details.message)
+                    throw response.data.details.message
                 }
             }).catch(function (error) {
-                console.log("Error when posting:", error)
-                throw this.#errorNotification("unexpected error when logging in", error)
+                if (error.hasOwnProperty('response')) {
+                    throw error.response.data.details.message
+                } else {
+                    throw error
+                }
             })
         } catch (error) {
-            console.log(error)
-            throw this.#errorNotification("error querying account", error)
+            throw instance.#errorNotification("error fetching customer data", error)
         }
         return customerInfo
     }

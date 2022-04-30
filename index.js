@@ -14,10 +14,10 @@ async function main() {
     let client = new Client()
     // client.addWallet(privateKey)
         try {
-            let promise = await client.requestSettleAccount({
-                "customer_phone": "0335909144",
-                "savingsaccount_id": "O-ABCD-MNPQ-1236"
-            })
+            let promise = await client.login(
+                "0335909144",
+                "12345"
+            )
             // console.log(promise.bankAccounts)
             console.log(promise)
 
