@@ -117,8 +117,8 @@ class Client {
                         signedMsgFromBank = response.data.details.signature
                         let clientMsg = instance.#createOpenTransactionMessage(txn, savingsAccountID)
                         txnHash = await instance.blockchainInteractor.openTransaction(clientMsg, signedMsgFromBank)
+                        console.log("Returned txnHash:", txnHash)
                     } catch (error) {
-                        console.log(error)
                         throw "error creating transaction on blockchain: " + error
                     }
                 } else {
@@ -132,18 +132,19 @@ class Client {
                 }
             })
             // step 3: sending back txnHash for confirmation
-            this.httpClient.post("/savings/confirmation", this.#createMessage(command.confirm, {
+            await this.httpClient.post("/savings/confirmation", this.#createMessage(command.confirm, {
                 "txn_hash": txnHash,
                 "savingsaccount_id": savingsAccountID,
                 "action": command.createAccount,
             })).then(function (response) {
                 if (response.status != 204) {
-                    throw "error sending back confirmation hash: " + error
+                    throw "error sending back confirmation hash: " + response.data
                 }
             }).catch(function (error) {
                 throw error
             })
         } catch (error) {
+            console.log(error)
             throw this.#errorNotification("error when open account", error)
         }
     }

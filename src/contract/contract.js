@@ -83,14 +83,6 @@ class BlockchainInteractor {
             this.wallet.address,
             hashedTxn,
             [
-                // ethers.utils.pad(ethers.utils.toUtf8Bytes(signature), 64),
-                // ethers.utils.hexZeroPad(ethers.utils.toUtf8Bytes(bankSignedTxn), 64)
-                // ethers.utils.zeroPad(ethers.utils.arrayify(signature), 64),
-                // ethers.utils.zeroPad(ethers.utils.arrayify(bankSignedTxn), 64)
-                // ethers.utils.arrayify(signature),
-                // ethers.utils.arrayify(bankSignedTxn),
-                // []signature,
-                // []byte(bankSignedTxn),
                 signature,
                 bankSignedTxn,
             ]
@@ -111,7 +103,7 @@ class BlockchainInteractor {
 
         console.log("txnHash:", result.hash)
         // step 4: decode to get txn hash here for return
-        return result
+        return result.hash
     }
 
     // redefine function on smart contract side: Bank side
@@ -125,27 +117,36 @@ class BlockchainInteractor {
             throw 'WARNING: invalid bank signature on message! Please contact the bank for more information!'
         }
 
-        txnString = JSON.stringify(txn)
-        const signature = wallet.signMessage(txnString)
-
-        
-        let calldata = this.contractABI.encodeFunctionData("SettleTransaction", [
+        let txnString = JSON.stringify(txn)
+        var signature = await this.wallet.verifier.signMessage(txnString)
+        console.log("signature:", signature)
+        const hashedTxn = this.wallet.verifier.hashMessage(txnString)
+        console.log("hashedTx:", hashedTxn)
+        let calldata = this.abi.encodeFunctionData("BroadcastSettleAccountTransaction", [
             this.wallet.address,
-            txn,
+            hashedTxn,
             [
-                ethers.utils.arrayify(signature),
-                ethers.utils.arrayify(bankSignedTxn),
+                signature,
+                bankSignedTxn,
             ]
         ])
 
-        let promise = this.wallet.wallet.sendTransaction({
+        let result = await this.wallet.wallet.sendTransaction({
             to: profile.contractAddress,
+            gasPrice: ethers.utils.hexlify(20000000000),
+            gasLimit: ethers.utils.hexlify(1000000),
             data: calldata,
+        }, function(error, hash) {
+            if (error != null) {
+                console.log("Error when performing transaction:", error)
+                throw error
+            }
+            return hash
         })
 
-        let result = promise.wait()
+        console.log("txnHash:", result.hash)
         // step 4: decode to get txn hash here for return
-        return result
+        return result.hash
     }
 
     fetchOpenTransactionsFromChain() {
