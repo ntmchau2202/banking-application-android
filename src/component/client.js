@@ -24,7 +24,7 @@ class Client {
     // customer has client
     constructor() {
         // TODO: INIT THIS!
-        const blockchainInteractor = null
+        const blockchainInteractor = new BlockchainInteractor(profile.customerPrivateKey)
         const httpClient = axios.create({
             baseURL: profile.baseUrl,
             timeout: profile.timeOut,
@@ -86,19 +86,39 @@ class Client {
         return customerInfo
     }
 
+    #createOpenTransactionMessage(txn, id) {
+        return {
+            "savingsaccount_id": id,
+            "product_type": txn.product_type,
+            "bankaccount_id": txn.bankaccount_id,
+            "savings_amount": txn.savings_amount,
+            "estimated_interest_amount": txn.estimated_interest_amount,
+            "open_time": txn.open_time,
+            "savings_period": txn.savings_period,
+            "settle_instruction": txn.settle_instruction,
+            "customer_id": txn.customer_id,
+            "interest_rate": txn.interest_rate,
+            "currency": txn.currency,
+        }
+    }
+
     async requestOpenAccount(txn) {
         const instance = this
+        var savingsAccountID = ""
+        var signedMsgFromBank = ""
+        var txnHash = ""
         try {
             // step 1: connect to bank server
-            var signedMsgFromBank = ""
-            var txnHash = ""
             await this.httpClient.post("/savings/create", this.#createMessage(command.createAccount, txn))
-            .then(function (response) {
+            .then(async function (response) {
                 if (response.status === 200) {
                     try {
-                        signedMsgFromBank = response.signed_message
-                        txnHash = instance.blockchainInteractor.openTransaction(txn, signedMsgFromBank)
+                        savingsAccountID = response.data.details.savingsaccount_id
+                        signedMsgFromBank = response.data.details.signature
+                        let clientMsg = instance.#createOpenTransactionMessage(txn, savingsAccountID)
+                        txnHash = await instance.blockchainInteractor.openTransaction(clientMsg, signedMsgFromBank)
                     } catch (error) {
+                        console.log(error)
                         throw "error creating transaction on blockchain: " + error
                     }
                 } else {
@@ -114,7 +134,7 @@ class Client {
             // step 3: sending back txnHash for confirmation
             this.httpClient.post("/savings/confirmation", this.#createMessage(command.confirm, {
                 "txn_hash": txnHash,
-                "savingsaccount_id": txn.savingsAccountID,
+                "savingsaccount_id": savingsAccountID,
                 "action": command.createAccount,
             })).then(function (response) {
                 if (response.status != 204) {
@@ -167,7 +187,6 @@ class Client {
                 throw error
             })
         } catch (error) {
-            console.log(error)
             throw instance.#errorNotification("error when settle account", error)
         }
     }

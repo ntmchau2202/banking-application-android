@@ -1,15 +1,18 @@
 const profile = require("../constant/env").profile
 const ethers = require("ethers")
-// const CONTRACT_ABI = require("./contractabi.json")
-const CONTRACT_ABI = ""
+const { hexZeroPad } = require("ethers/lib/utils")
+const CONTRACT_ABI = require("./contractabi.json")
+const Ganache = require("ganache-cli")
+// const CONTRACT_ABI = ""
 
 
 class BlockchainInteractor {
     constructor(privateKey) {
         const wallet = new Wallet(privateKey)
-        // const contractABI = new ethers.utils.Interface(CONTRACT_ABI)
+        const contractABI = new ethers.utils.Interface(CONTRACT_ABI)
         this.wallet = wallet
-        // this.abi = contractABI
+        // this.verifier = new Verifier(wallet)
+        this.abi = contractABI
     }
 
     #encodeTopic (topic) {
@@ -51,35 +54,62 @@ class BlockchainInteractor {
         return filter
     }
 
+    #stringToBytes32(text) {
+        let result = ethers.utils.toUtf8Bytes(text)
+        if (result.length > 32) { throw new Error('String too long') }
+        result = ethers.utils.hexlify(result);
+        while (result.length < 66) { result += '0'; }
+        if (result.length !== 66) { throw new Error("invalid web3 implicit bytes32"); }
+        return result;
+    }
+
     // redefine function on smart contract side: Bank side
     // function openTransaction(
     //     bytes32 message,
     //     bytes[2] signatures,
     // )
-    openTransaction (txn, bankSignedTxn) {
+    async openTransaction (txn, bankSignedTxn) {
         // verify bankSignedTxn
-        if (!this.wallet.verifier.verifyMessage(txn, bankSignedTxn, profile.bankWalletAddress)) {
+        if (!this.wallet.verifier.verifyMessage(txn, bankSignedTxn, profile.bankOwner)) {
             throw 'WARNING: invalid bank signature on message! Please contact the bank for more information!'
         }
 
-        txnString = JSON.stringify(txn)
-        const signature = wallet.signMessage(txnString)
-
-        let contractABI = abi()
-        let calldata = contractABI.encodeFunctionData("OpenTransaction", [
-            txn,
+        let txnString = JSON.stringify(txn)
+        var signature = await this.wallet.verifier.signMessage(txnString)
+        console.log("signature:", signature)
+        const hashedTxn = this.wallet.verifier.hashMessage(txnString)
+        console.log("hashedTx:", hashedTxn)
+        let calldata = this.abi.encodeFunctionData("BroadcastOpenAccountTransaction", [
+            this.wallet.address,
+            hashedTxn,
             [
+                // ethers.utils.pad(ethers.utils.toUtf8Bytes(signature), 64),
+                // ethers.utils.hexZeroPad(ethers.utils.toUtf8Bytes(bankSignedTxn), 64)
+                // ethers.utils.zeroPad(ethers.utils.arrayify(signature), 64),
+                // ethers.utils.zeroPad(ethers.utils.arrayify(bankSignedTxn), 64)
+                // ethers.utils.arrayify(signature),
+                // ethers.utils.arrayify(bankSignedTxn),
+                // []signature,
+                // []byte(bankSignedTxn),
                 signature,
-                bankSignedTxn
+                bankSignedTxn,
             ]
         ])
 
-        let promise = wallet.wallet.sendTransaction({
+        let result = await this.wallet.wallet.sendTransaction({
             to: profile.contractAddress,
+            gasPrice: ethers.utils.hexlify(20000000000),
+            gasLimit: ethers.utils.hexlify(1000000),
             data: calldata,
+        }, function(error, hash) {
+            if (error != null) {
+                console.log("Error when performing transaction:", error)
+                throw error
+            }
+            return hash
         })
 
-        let result = promise.wait()
+        console.log("txnHash:", result.hash)
         // step 4: decode to get txn hash here for return
         return result
     }
@@ -91,23 +121,24 @@ class BlockchainInteractor {
     // )
     settleTransaction (txn, bankSignedTxn)  {
         // verify bankSignedTxn
-        if (!this.wallet.verifier.verifyMessage(txn, bankSignedTxn, profile.bankWalletAddress)) {
+        if (!this.wallet.verifier.verifyMessage(txn, bankSignedTxn, profile.bankOwner)) {
             throw 'WARNING: invalid bank signature on message! Please contact the bank for more information!'
         }
 
         txnString = JSON.stringify(txn)
         const signature = wallet.signMessage(txnString)
 
-        let contractABI = abi()
-        let calldata = contractABI.encodeFunctionData("SettleTransaction", [
+        
+        let calldata = this.contractABI.encodeFunctionData("SettleTransaction", [
+            this.wallet.address,
             txn,
             [
-                signature,
-                bankSignedTxn
+                ethers.utils.arrayify(signature),
+                ethers.utils.arrayify(bankSignedTxn),
             ]
         ])
 
-        let promise = wallet.wallet.sendTransaction({
+        let promise = this.wallet.wallet.sendTransaction({
             to: profile.contractAddress,
             data: calldata,
         })
@@ -150,15 +181,30 @@ class Verifier  {
     constructor(wallet) {
         this.wallet = wallet
     }
-    signMessage (message) {
+
+    #appendPrefix(message) {
+        // note: the message must be of string type
         const prefix = "\x19Ethereum Signed Message:\n" + String(message.length) 
         const actualMessage = prefix + message 
-        const signature = this.wallet.wallet.signMessage(actualMessage)
-        return signature, signature.hash()
+        return actualMessage
+    }
+
+    async signMessage(message) {
+        // let actualMessage = this.#appendPrefix(message)
+        const signature = await this.wallet.signMessage(message)
+        return signature
+    }
+
+    hashMessage(message) {
+        let actualMessage = this.#appendPrefix(message)
+        return ethers.utils.id(actualMessage)
     }
 
     verifyMessage(message, signature, targetAddress) {
-        const recovered = ethers.utils.verifyMessage(message, signature)
+        let messageString = JSON.stringify(message)
+        const recovered = ethers.utils.verifyMessage(messageString, signature)
+        console.log("recovered address:", recovered)
+        console.log("target address:", targetAddress)
         if (recovered === targetAddress) {
             return true
         } else {
@@ -171,7 +217,7 @@ class Wallet {
     // const wallet = ethers.ethers.Wallet
     // const verifier = Verifier
     constructor (privateKey) {
-        const node = new ethers.providers.WebSocketProvider(profile.blockchainNode)
+        const node = new ethers.providers.JsonRpcProvider(profile.blockchainNode)
         const wallet = new ethers.Wallet(privateKey, node)
         const provider = wallet.connect(node)
         const verifier = new Verifier(wallet)
@@ -180,6 +226,7 @@ class Wallet {
         this.wallet = wallet 
         this.provider = provider
         this.verifier = verifier
+        this.address = wallet.address
     }
 }
 
