@@ -111,7 +111,7 @@ class BlockchainInteractor {
     //     bytes32 message,
     //     bytes[2] signatures,
     // )
-    settleTransaction (txn, bankSignedTxn)  {
+    async settleTransaction (txn, bankSignedTxn)  {
         // verify bankSignedTxn
         if (!this.wallet.verifier.verifyMessage(txn, bankSignedTxn, profile.bankOwner)) {
             throw 'WARNING: invalid bank signature on message! Please contact the bank for more information!'

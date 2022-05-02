@@ -14,18 +14,12 @@ async function main() {
     let client = new Client()
     // client.addWallet(privateKey)
         try {
-            let promise = await client.requestOpenAccount({
-                "customer_id": "N-0002",
-                "customer_phone": "0123456789",
-                "bankaccount_id": "A123",
-                "product_type": "Online",
-                "savings_period": 6,
-                "interest_rate": 6.9,
-                "savings_amount": 1000000,
-                "estimated_interest_amount": 100000,
-                "settle_instruction": "SETTLE_ALL",
-                "currency": "VND",
-                "open_time": "Sun, 03 Apr 2022 16:50:44 +07",
+            let promise = await client.requestSettleAccount({
+                "customer_phone": "01234567980",
+                "savingsaccount_id": "1",
+                "settle_time": "Mon, 04 Apr 2022 16:50:44 +07",
+                "actual_interest_amount": 100000,
+
             })
             // console.log(promise.bankAccounts)
             console.log(promise)

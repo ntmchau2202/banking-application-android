@@ -149,25 +149,36 @@ class Client {
         }
     }
 
+    #createSettleTransactionMessage(txn) {
+        return {
+            "customer_phone": txn.customer_phone,
+            "savingsaccount_id": txn.savingsaccount_id,
+            "actual_interest_amount": txn.actual_interest_amount,
+            "settle_time": txn.settle_time
+        }
+    }
+
     async requestSettleAccount(txn) {
         const instance = this
+        var savingsAccountID = txn.savingsaccount_id
+        var signedMsgFromBank = ""
+        var txnHash = ""
         try {
             // step 1: connect to bank server
-            var signedMsgFromBank = ""
             await this.httpClient.post("/savings/settle", this.#createMessage(command.settleAccount, txn))
-            .then(function (response) {
+            .then(async function (response) {
                 if (response.status === 200) {
                     try {
-                        // step 2: send transaction to get receipt on blockchain
-                        signedMsgFromBank = response.signed_message
-                        return instance.blockchainInteractor.settleTransaction(txn, signedMsgFromBank)
+                        signedMsgFromBank = response.data.details.signature
+                        let clientMsg = instance.#createSettleTransactionMessage(txn)
+                        txnHash = await instance.blockchainInteractor.settleTransaction(clientMsg, signedMsgFromBank)
+                        console.log("Returned txnHash:", txnHash)
                     } catch (error) {
                         throw "error creating transaction on blockchain: " + error
                     }
                 } else {
                     throw response.data.details.message
                 }
-                
             }).catch(function (error) {
                 if (error.hasOwnProperty('response')) {
                     throw error.response.data.details.message
@@ -175,20 +186,21 @@ class Client {
                     throw error
                 }
             })
-            // step 3: sending back txnHash to bank server
-            instance.httpClient.post("/savings/confirmation", instance.#createMessage(command.confirm, {
+            // step 3: sending back txnHash for confirmation
+            await this.httpClient.post("/savings/confirmation", this.#createMessage(command.confirm, {
                 "txn_hash": txnHash,
-                "savingsaccount_id": txn.savingsAccountID,
+                "savingsaccount_id": savingsAccountID,
                 "action": command.settleAccount,
             })).then(function (response) {
-                    if (response.status != 204) {
-                        throw "error sending back confirmation hash: " + error
-                    }
+                if (response.status != 204) {
+                    throw "error sending back confirmation hash: " + response.data
+                }
             }).catch(function (error) {
                 throw error
             })
         } catch (error) {
-            throw instance.#errorNotification("error when settle account", error)
+            console.log(error)
+            throw this.#errorNotification("error when open account", error)
         }
     }
 
