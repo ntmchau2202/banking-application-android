@@ -2,7 +2,7 @@ const profile = {
     baseUrl: "http://localhost:9999/v1",
     timeOut: 10000,
     headers: {
-
+        'Content-type': "application/json",
     },
     bankPrivateKey: "0ae14037ea4665f2c0042a5d15ebf3b6510965c5da80be7c681412b271537b75",
     customerPrivateKey: "37b435866589162c1945b62de3a8d43c7ef809d1f45e8814eeaa5ce1cbc3dcb8",

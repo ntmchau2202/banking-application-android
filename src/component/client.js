@@ -23,7 +23,6 @@ class Client {
 
     // customer has client
     constructor() {
-        // TODO: INIT THIS!
         const blockchainInteractor = new BlockchainInteractor(profile.customerPrivateKey)
         const httpClient = axios.create({
             baseURL: profile.baseUrl,
@@ -116,6 +115,7 @@ class Client {
                         savingsAccountID = response.data.details.savingsaccount_id
                         signedMsgFromBank = response.data.details.signature
                         let clientMsg = instance.#createOpenTransactionMessage(txn, savingsAccountID)
+                        console.log("clientMsg:", clientMsg)
                         txnHash = await instance.blockchainInteractor.openTransaction(clientMsg, signedMsgFromBank)
                         console.log("Returned txnHash:", txnHash)
                     } catch (error) {
