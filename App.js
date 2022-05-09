@@ -12,6 +12,7 @@ import TransactionListScreen from './screens/basics/TransactionScreen/index';
 import PendingTransactionScreen from './screens/basics/PendingTransactionScreen';
 import SavingsListScreen from './screens/basics/TransactionScreen/index';
 import CreateNewSavingsScreen from './screens/basics/CreateNewSavingsScreen';
+import { ConfirmCreateNewSavingsScreen } from './screens/basics/CreateNewSavingsScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -57,6 +58,8 @@ export default function App() {
                       name='Savings list'/>
         <Stack.Screen component={TransactionDetails}
                       name='Savings account details'/>
+        <Stack.Screen component={ConfirmCreateNewSavingsScreen}
+                      name='Confirm creation'/>
       </Stack.Navigator>
     </NavigationContainer>
   );

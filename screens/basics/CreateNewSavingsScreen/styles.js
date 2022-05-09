@@ -1,3 +1,4 @@
+import { Row } from "native-base";
 import { StyleSheet, Dimensions } from "react-native";
 
 const styles = StyleSheet.create({
@@ -17,7 +18,7 @@ const styles = StyleSheet.create({
     option: {
       // margin: 5,
       flexDirection: 'row',
-      height: 0.04 * Dimensions.get('window').height,
+      // height: 0.04 * Dimensions.get('window').height,
       borderWidth: 1,
       padding: 5,
       margin: 5,
@@ -32,8 +33,20 @@ const styles = StyleSheet.create({
       width: 0.6 * Dimensions.get('window').width,
     },
 
-    optionText: {
+    orderItem: {
+      flexDirection: 'row',
+      padding: 5,
+      margin: 5,
+      fontSize: 18,
+      borderWidth: 1,
+    },
 
+    orderLabel: {
+      width: 0.4 * Dimensions.get('window').width,
+    },
+
+    orderDetails: {
+      width: 0.6 * Dimensions.get('window').width,
     }
 
   });
