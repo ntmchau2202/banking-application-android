@@ -2,43 +2,43 @@
 import { StyleSheet,  View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator }from '@react-navigation/native-stack';
-import { TransactionConfirmation } from './screens/TransactionDetailsScreen';
-import TransactionDetails from './screens/TransactionDetailsScreen';
-import StyledButton from './components/StyledButton';
+import { TransactionConfirmation } from './screens/basics/TransactionDetailsScreen';
+import TransactionDetails from './screens/basics/TransactionDetailsScreen';
+import StyledButton from './screens/components/StyledButton'
 
-import {LoginScreen} from './screens/LoginScreen/index'
-import MainMenu from './screens/MainMenuScreen';
-import TransactionListScreen from './screens/TransactionScreen/index';
-import PendingTransactionScreen from './screens/PendingTransactionScreen';
+import {LoginScreen} from './screens/basics/LoginScreen/index'
+import MainMenu from './screens/basics/MainMenuScreen';
+import TransactionListScreen from './screens/basics/TransactionScreen/index';
+import PendingTransactionScreen from './screens/basics/PendingTransactionScreen';
+import SavingsListScreen from './screens/basics/TransactionScreen/index';
+import CreateNewSavingsScreen from './screens/basics/CreateNewSavingsScreen';
 
 const Stack = createNativeStackNavigator();
 
 const WelcomeScreen = ({navigation}) => {
 
-  return ( 
-    <View style={styles.buttonContainer}>
-       <View style={styles.container}>
-        <StyledButton
-          type='primary'
-          title={'Login'}
-          onPress={()=> {
-            navigation.navigate('Login')
-          }}/>
+  // return ( 
+  //   <View style={styles.buttonContainer}>
+  //      <View style={styles.container}>
+  //       <StyledButton
+  //         type='primary'
+  //         title={'Login'}
+  //         onPress={()=> {
+  //           navigation.navigate('Login')
+  //         }}/>
 
-        <StyledButton
-        type='secondary'
-        title={'Create new account'}
-        onPress={() => {
-        }}
-        />
+  //       <StyledButton
+  //       type='secondary'
+  //       title={'Create new account'}
+  //       onPress={() => {
+  //       }}
+  //       />
 
-      </View>
-    </View>
-    // <View>
-    //       <MainMenu content='Chou chou'
-    //           name='N-0123'/>
-    // </View>
-
+  //     </View>
+  //   </View>
+   // ===========
+  return (
+    <CreateNewSavingsScreen/>
     
   )
 }
@@ -53,14 +53,10 @@ export default function App() {
                       name='Login'/>
         <Stack.Screen component={MainMenu}
                       name='Main menu'/>
-        <Stack.Screen component={TransactionListScreen}
-                      name='Transaction list'/>
+        <Stack.Screen component={SavingsListScreen}
+                      name='Savings list'/>
         <Stack.Screen component={TransactionDetails}
-                      name='Transaction details'/>
-        <Stack.Screen component={PendingTransactionScreen}
-                      name='Pending transaction'/>
-        <Stack.Screen component={TransactionConfirmation}
-                      name='Confirm transaction'/>
+                      name='Savings account details'/>
       </Stack.Navigator>
     </NavigationContainer>
   );

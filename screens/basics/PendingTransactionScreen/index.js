@@ -1,8 +1,10 @@
 import React from 'react';
 import { View, FlatList} from 'react-native';
 import { SearchBar } from 'react-native-elements';
+// import { OpenTransaction, SettleTransaction } from '../../components/components/Transaction/transaction';
 import { OpenTransaction, SettleTransaction } from '../../components/Transaction/transaction';
-import TransactionList from '../../components/Transaction';
+// import TransactionList from '../../components/components/Transaction';
+import TransactionList from '../../components/Transaction'
 import styles from './styles';
 // import txns from './txn'
 

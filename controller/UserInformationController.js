@@ -1,5 +1,0 @@
-export function GetUserBasicInformation(phone) {
-    
-}
-
-

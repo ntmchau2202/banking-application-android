@@ -3,6 +3,7 @@ import { View, Text, Image, TouchableOpacity} from 'react-native';
 import styles from './styles';
 import txns from './txn'
 import { useNavigation } from '@react-navigation/native';
+import { profile } from '../../../logic/constant/env';
 
 const UserBar = (props) => {
     return (
@@ -25,12 +26,9 @@ const Menu = () => {
             <MenuOption title='Your account'
                         name=''
                         content=''/>
-            <MenuOption title='Your transactions'
-                        name='Transaction list'
-                        content={txns}/>
-            <MenuOption title='Pending transactions'
-                        name='Pending transaction'
-                        content={txns}/>
+            <MenuOption title='Your savings account'
+                        name='Savings list'
+                        content={profile.currentCustomer.bankAccounts.savingsAccounts}/>
         </View>
     )
 }

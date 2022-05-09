@@ -1,7 +1,8 @@
 import React from 'react';
 import { FlatList, View } from 'react-native';
 import styles from './styles.js'
-import { OpenTransaction, SettleTransaction } from './transaction';
+// import { OpenTransaction, SettleTransaction } from './transaction';
+import { OpenTransaction, SettleTransaction } from './transaction.js';
 
 const TransactionItem = (props) => {
     const txnType = props.txn.name 
@@ -13,6 +14,7 @@ const TransactionItem = (props) => {
 }
 
 const TransactionList = (props) => {
+    console.log("txnList props:", props)
     return (
         <View style={styles.container}>
             <FlatList 

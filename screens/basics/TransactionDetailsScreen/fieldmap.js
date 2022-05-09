@@ -1,8 +1,7 @@
 export const FieldMap = {
-    name: "Transaction type",
-    txnHash: "Transaction hash",
-    blockHash: "Block hash",
-    blockNumber: "Block number",
+    savingsType: "Savings type",
+    creationConfirmed: "Creation hash",
+    settleConfirmed: "Settle hash",
     customerID: "Customer ID",
     savingsAccountID: "Savings account ID",
     savingsType: "Savings type",
@@ -15,5 +14,4 @@ export const FieldMap = {
     currency: "Currency",
     openTime: "Open time",
     settleTime: "Settle time",
-    bankID: "Bank"
 }

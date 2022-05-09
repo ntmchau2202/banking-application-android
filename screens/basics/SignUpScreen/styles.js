@@ -1,10 +1,10 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
-import StyledButton from '../../components/StyledButton';
-import StyledInput from '../../components/StyledInput';
+import StyledButton from '../../components/components/StyledButton';
+import StyledInput from '../../components/components/StyledInput';
 import styles from './styles.js'
 
-// import StyledButton from './components/StyledButton';
+// import StyledButton from './screens/components/StyledButton';
 
 export const SignupScreen = () => {
     return (

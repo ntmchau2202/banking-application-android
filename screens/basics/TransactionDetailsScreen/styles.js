@@ -65,7 +65,6 @@ const styles = StyleSheet.create({
     },
 
     confirmationButton: {
-        padding: 10,
         flex: 1,
     }
 

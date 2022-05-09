@@ -1,0 +1,295 @@
+[
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "_userAddress",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "time",
+				"type": "uint256"
+			}
+		],
+		"name": "NewUser",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "_customerAddressI",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "_customerAddress",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "bytes",
+				"name": "_firstSignature",
+				"type": "bytes"
+			},
+			{
+				"indexed": false,
+				"internalType": "bytes",
+				"name": "_secondSignature",
+				"type": "bytes"
+			}
+		],
+		"name": "OpenSavingsAccountTransaction",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "_oldOwner",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "_newOwner",
+				"type": "address"
+			}
+		],
+		"name": "OwnershipTransferred",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "_customerAddressI",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "_customerAddress",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "bytes",
+				"name": "_firstSignature",
+				"type": "bytes"
+			},
+			{
+				"indexed": false,
+				"internalType": "bytes",
+				"name": "_secondSignature",
+				"type": "bytes"
+			}
+		],
+		"name": "SettleSavingsAccountTransaction",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_userAddress",
+				"type": "address"
+			}
+		],
+		"name": "addUser",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_customerAddress",
+				"type": "address"
+			},
+			{
+				"internalType": "bytes32",
+				"name": "_hash",
+				"type": "bytes32"
+			},
+			{
+				"internalType": "bytes[2]",
+				"name": "_signatures",
+				"type": "bytes[2]"
+			}
+		],
+		"name": "BroadcastOpenAccountTransaction",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_customerAddress",
+				"type": "address"
+			},
+			{
+				"internalType": "bytes32",
+				"name": "_hash",
+				"type": "bytes32"
+			},
+			{
+				"internalType": "bytes[2]",
+				"name": "_signatures",
+				"type": "bytes[2]"
+			}
+		],
+		"name": "BroadcastSettleAccountTransaction",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "newOwner",
+				"type": "address"
+			}
+		],
+		"name": "transferOwnership",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_bankOwner",
+				"type": "address"
+			},
+			{
+				"internalType": "string",
+				"name": "_bankName",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_bankID",
+				"type": "string"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"inputs": [],
+		"name": "getBankID",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getBankName",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getFactory",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_userAddress",
+				"type": "address"
+			}
+		],
+		"name": "isMember",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "owner",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes32",
+				"name": "hash",
+				"type": "bytes32"
+			},
+			{
+				"internalType": "bytes[2]",
+				"name": "signature",
+				"type": "bytes[2]"
+			}
+		],
+		"name": "verifyUser",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			},
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+]
