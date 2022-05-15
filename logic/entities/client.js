@@ -115,7 +115,6 @@ class Client {
                         savingsAccountID = response.data.details.savingsaccount_id
                         signedMsgFromBank = response.data.details.signature
                         let clientMsg = instance.createOpenTransactionMessage(txn, savingsAccountID)
-                        console.log("clientMsg:", clientMsg)
                         txnHash = await instance.blockchainInteractor.openTransaction(clientMsg, signedMsgFromBank)
                         console.log("Returned txnHash:", txnHash)
                     } catch (error) {

@@ -6,6 +6,9 @@ import {period, currency, settleStrategy} from './periods'
 import { useState } from "react";
 import StyledButton from "../../components/StyledButton";
 import { useNavigation } from "@react-navigation/native";
+// import { Client } from "../../../logic/entities/client";
+const Client = require("../../../logic/entities/client").Client
+const profile = require("../../../logic/constant/env").profile
 
 const CreateNewSavingsScreen = () => {
     const navigation = useNavigation()
@@ -33,6 +36,8 @@ const CreateNewSavingsScreen = () => {
 
     const [inputSavingsAmount, setSavingsAmount] = useState(0)
     const [estimatedInterest, setEstimatedInterest] = useState(0)
+    const [currentBalance, setCurrentBalance] = useState(0)
+
     let calculateInterest = (amt) => {
         console.log("input amt:", amt)
         console.log('selected period:', selectedInterest)
@@ -73,16 +78,24 @@ const CreateNewSavingsScreen = () => {
                     visible={visibleSource}
                     anchor={<Text style={styles.optionDropdown} onPress={toggleSource}>{displaySource}</Text>}
                     onRequestClose={toggleSource}>
-                    <MenuItem onPress={() => {
-                        changeSourceText('Hiiiiii')
-                        setSource('Hiiiiii')
-                        toggleSource()
-                    }}>Hiiiiii</MenuItem>
+                    {Object.entries(profile.currentCustomer.bankAccounts).map(([k, v]) => {
+                        return (
+                            <MenuItem onPress={() => {
+                                changeSourceText(v.id)
+                                setSource(v)
+                                setCurrentBalance(v.balance)
+                                toggleSource()
+                            }}>{v.id}</MenuItem>
+                        )
+                    })}     
                 </Menu>
             </View>
             <View style={styles.option}>
                 <Text style={styles.optionLabel}>
                     Current balance: 
+                </Text>
+                <Text>
+                    {currentBalance}
                 </Text>
             </View>
             <View style={styles.option}>
@@ -169,6 +182,37 @@ const CreateNewSavingsScreen = () => {
             <StyledButton type='primary'
                             title='Create new account'
                             onPress={()=>{
+
+                                if (displaySource.length === 0) {
+                                    console.warn("Please select source of savings")
+                                    return
+                                }
+
+                                if (selectedInterest === 0 || selectedPeriod == 0) {
+                                    console.warn("Please select a savings period")
+                                    return 
+                                } 
+
+                                if (selectedCurrency.length === 0) {
+                                    console.warn("Please select type of currency")
+                                    return
+                                }
+
+                                if (inputSavingsAmount === 0 ) {
+                                    console.warn("Please enter savings amount") 
+                                    return   
+                                } 
+                                
+                                if ( inputSavingsAmount > currentBalance) {
+                                    console.warn("Please select a smaller savings amount")
+                                    return
+                                }
+
+                                if (settleStrategy.length === 0) {
+                                    console.warn("Please select a settle strategy")
+                                    return
+                                }
+
                                 navigation.navigate('Confirm creation', {
                                     source: selectedSource,
                                     savingsAmount: inputSavingsAmount,
@@ -184,11 +228,12 @@ const CreateNewSavingsScreen = () => {
 }
 
 export const ConfirmCreateNewSavingsScreen = (navigation) => {
+    let navigator = useNavigation()
     return(
         <View style={styles.container}>
             <View style={styles.orderItem}>
                 <Text style={styles.orderLabel}>Source</Text>
-                <Text style={styles.orderDetails}>{navigation.route.params.source}</Text>
+                <Text style={styles.orderDetails}>{navigation.route.params.source.id}</Text>
             </View>
             <View style={styles.orderItem}>
                 <Text style={styles.orderLabel}>Savings amount</Text>
@@ -216,10 +261,45 @@ export const ConfirmCreateNewSavingsScreen = (navigation) => {
             </View>
             <StyledButton type='primary'
                             title='Confirm'
-                            onPress=''/>
+                            onPress={() => {
+                                console.warn("going to create account")
+                                // const client = new Client()
+                                // profile.connector = client
+                                let currentTime = new Date().toUTCString()
+                                let message = {
+                                    "customer_phone": profile.currentCustomer.phone,
+                                    "product_type": "Online",
+		                            "bankaccount_id": navigation.route.params.source.id,
+                                    "savings_amount": parseFloat(navigation.route.params.savingsAmount),
+                                    "estimated_interest_amount": parseFloat(navigation.route.params.estimatedInterestAmount),
+                                    "open_time": currentTime,  
+                                    "savings_period": parseInt(navigation.route.params.savingsPeriod),
+                                    "settle_instruction": navigation.route.params.settleInstruction,
+                                    "customer_id": profile.currentCustomer.id,
+                                    "interest_rate": parseFloat(navigation.route.params.interestRate),
+                                    "currency": navigation.route.params.currency,
+                                }
+
+                                console.log(message)
+
+                                let connector = new Client()
+
+                                connector.requestOpenAccount(message).then(function(response){
+                                    if (typeof(response) == 'object') {
+                                        if ('error' in response) {
+                                            console.warn("An error occured when creating new account")
+                                            console.log(response)
+                                        }
+                                    } else {
+                                        console.warn("Account created successfully")
+                                    }
+                                })
+                            }}/>
             <StyledButton type='secondary'
                             title='Go back'
-                            onPress=''/>
+                            onPress={() => {
+                                navigator.navigate('New savings account')
+                            }}/>
         </View>
     )
 }

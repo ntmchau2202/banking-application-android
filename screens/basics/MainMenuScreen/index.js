@@ -29,6 +29,9 @@ const Menu = () => {
             <MenuOption title='Your savings account'
                         name='Savings list'
                         content={profile.currentCustomer.bankAccounts.savingsAccounts}/>
+            <MenuOption title='New savings account'
+                        name='New savings account'
+                        content=''/>
         </View>
     )
 }

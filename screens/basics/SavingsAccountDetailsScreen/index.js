@@ -42,6 +42,7 @@ const TableRowAttribute = (props) => {
 
 
 const SavingsAccountDetails = (navigation) => {
+    const navigator = useNavigation()
     const mapProps = Object.entries(navigation.route.params).map(([k, v]) => ({key: FieldMap[k], value: v}))
     return (
         // <View style={styles.container}> 
@@ -54,7 +55,9 @@ const SavingsAccountDetails = (navigation) => {
                 <View style={styles.confirmationButton}>
                     <StyledButton type='primary'
                                   title='Settle'
-                                  onPress=''/>
+                                  onPress={() => {
+                                    navigator.navigate('Confirm settle', navigation.route.params)
+                                  }}/>
                 </View>
             </View>
         // </View>

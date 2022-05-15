@@ -2,46 +2,44 @@
 import { StyleSheet,  View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator }from '@react-navigation/native-stack';
-import { TransactionConfirmation } from './screens/basics/TransactionDetailsScreen';
-import TransactionDetails from './screens/basics/TransactionDetailsScreen';
+import TransactionDetails from './screens/basics/SavingsAccountDetailsScreen';
 import StyledButton from './screens/components/StyledButton'
 
 import {LoginScreen} from './screens/basics/LoginScreen/index'
 import MainMenu from './screens/basics/MainMenuScreen';
-import TransactionListScreen from './screens/basics/TransactionScreen/index';
-import PendingTransactionScreen from './screens/basics/PendingTransactionScreen';
 import SavingsListScreen from './screens/basics/TransactionScreen/index';
 import CreateNewSavingsScreen from './screens/basics/CreateNewSavingsScreen';
 import { ConfirmCreateNewSavingsScreen } from './screens/basics/CreateNewSavingsScreen';
+import ConfirmSettleScreen from './screens/basics/SettleSavingsScreen';
 
 const Stack = createNativeStackNavigator();
 
 const WelcomeScreen = ({navigation}) => {
 
-  // return ( 
-  //   <View style={styles.buttonContainer}>
-  //      <View style={styles.container}>
-  //       <StyledButton
-  //         type='primary'
-  //         title={'Login'}
-  //         onPress={()=> {
-  //           navigation.navigate('Login')
-  //         }}/>
+  return ( 
+    <View style={styles.buttonContainer}>
+       <View style={styles.container}>
+        <StyledButton
+          type='primary'
+          title={'Login'}
+          onPress={()=> {
+            navigation.navigate('Login')
+          }}/>
 
-  //       <StyledButton
-  //       type='secondary'
-  //       title={'Create new account'}
-  //       onPress={() => {
-  //       }}
-  //       />
+        <StyledButton
+        type='secondary'
+        title={'Create new account'}
+        onPress={() => {
+        }}
+        />
 
-  //     </View>
-  //   </View>
-   // ===========
-  return (
-    <CreateNewSavingsScreen/>
-    
+      </View>
+    </View>
+  //  ===========
+  // return (
+  //   <CreateNewSavingsScreen/>
   )
+  
 }
 
 export default function App() {
@@ -58,8 +56,12 @@ export default function App() {
                       name='Savings list'/>
         <Stack.Screen component={TransactionDetails}
                       name='Savings account details'/>
+        <Stack.Screen component={CreateNewSavingsScreen}
+                      name='New savings account'/>
         <Stack.Screen component={ConfirmCreateNewSavingsScreen}
                       name='Confirm creation'/>
+        <Stack.Screen component={ConfirmSettleScreen}
+                      name='Confirm settle'/>
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -202,6 +202,7 @@ class Verifier  {
 
     verifyMessage(message, signature, targetAddress) {
         let messageString = JSON.stringify(message)
+        console.log("message to verify:", messageString)
         const recovered = ethers.utils.verifyMessage(messageString, signature)
         console.log("recovered address:", recovered)
         console.log("target address:", targetAddress)
@@ -217,7 +218,12 @@ class Wallet {
     // const wallet = ethers.ethers.Wallet
     // const verifier = Verifier
     constructor (privateKey) {
-        const node = new ethers.providers.JsonRpcProvider(profile.blockchainNode)
+        // const node = new ethers.providers.JsonRpcProvider(profile.blockchainNode)
+        const node = new ethers.providers.WebSocketProvider("wss://speedy-nodes-nyc.moralis.io/f2b19a3c16403baa4483c731/polygon/mumbai/ws")
+        // console.log("node:", node)
+        // const node = new ethers.providers.WebSocketProvider(profile.blockchainNode)
+        // const node = new ethers.providers.Web3Provider(ganache.provider())
+        console.log("node:", node)
         const wallet = new ethers.Wallet(privateKey, node)
         const provider = wallet.connect(node)
         const verifier = new Verifier(wallet)

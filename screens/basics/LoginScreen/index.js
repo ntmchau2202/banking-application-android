@@ -49,13 +49,14 @@ export const LoginScreen = (props) => {
                 type='primary'
                 title='Login'
                 onPress={()=> {
-                    let client = new Client()
-                    client.login(phone, password)
+                    const client = new Client()
+                    profile.connector = client
+                    profile.connector.login(phone, password)
                     .then(function(result) {
                         if ('error' in result) {
                             toggleWarning(true)
                             setLoginContent('Login failed')
-                            console.log(result)
+                            // console.log(result)
                         } else {
                             // TODO: CREATE CUSTOMER INSTANCE HERE!
                             profile.currentCustomer = result
@@ -66,6 +67,7 @@ export const LoginScreen = (props) => {
                             })
                         }
                     }).catch(function(error){
+                        console.log("error logging in:", error)
                         toggleWarning(true)
                         setLoginContent('Login failed')
                     })
