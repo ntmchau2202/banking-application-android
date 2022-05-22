@@ -14,4 +14,6 @@ export const FieldMap = {
     currency: "Currency",
     openTime: "Open time",
     settleTime: "Settle time",
+    status: "Status",
+    bankAccountID: "Bank account"
 }

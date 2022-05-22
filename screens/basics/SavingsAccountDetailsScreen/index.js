@@ -43,7 +43,54 @@ const TableRowAttribute = (props) => {
 
 const SavingsAccountDetails = (navigation) => {
     const navigator = useNavigation()
-    const mapProps = Object.entries(navigation.route.params).map(([k, v]) => ({key: FieldMap[k], value: v}))
+    console.log("account:", navigation.route.params)
+    let originalObj = navigation.route.params
+    const mapProps = Object.entries(originalObj).map(([k, v]) => ({key: FieldMap[k], value: v}))
+    let needBtn = false 
+    let btnTitle = ''
+    let btnScreenNavigation = ''
+    let currentSavingsStatus = navigation.route.params.status
+    console.log(navigation.route.params.status)
+    console.log("current savings status:", currentSavingsStatus)
+    let informationObject = null
+    if (currentSavingsStatus === 1) {
+        needBtn = true 
+        btnTitle = 'Confirm creation'
+        btnScreenNavigation = 'Confirm creation'
+        informationObject = {
+            // route.params at this moment will have all information for creation confirmation
+            source: {
+                id: originalObj.bankAccountID,
+            },
+            savingsAmount: originalObj.savingsAmount,
+            savingsAccountID: originalObj.savingsAccountID,
+            currency: originalObj.currency,
+            savingsPeriod: originalObj.savingsPeriod,
+            interestRate: originalObj.interestRate,
+            estimatedInterestAmount: originalObj.estimatedInterestAmount,
+            settleInstruction: originalObj.settleInstruction,
+            openTime: originalObj.openTime
+        }
+    } else if (currentSavingsStatus === 2) {
+        needBtn = true 
+        btnTitle = 'Settle'
+        btnScreenNavigation = 'Confirm settle'
+        informationObject = originalObj
+    } else if (currentSavingsStatus === 3) {
+        needBtn = true 
+        btnTitle = 'Confirm settle'
+        btnScreenNavigation = 'Confirm settle'
+        informationObject = {
+            savingsAmount: originalObj.savingsAmount,
+            interestRate: originalObj.interestRate,
+            currency: originalObj.currency,
+            actualInterestAmount: originalObj.actualInterestAmount,
+            settleTime: originalObj.settleTime,  
+            savingsAccountID: originalObj.savingsAccountID,
+        }
+    } else if (currentSavingsStatus === 4) {
+        needBtn = false
+    }
     return (
         // <View style={styles.container}> 
             <View style={styles.tableContainer}>
@@ -52,13 +99,13 @@ const SavingsAccountDetails = (navigation) => {
                     renderItem={({item}) => <TableRowAttribute 
                                                     name={item.key}
                                                     content={item.value}/>}></FlatList>
-                <View style={styles.confirmationButton}>
-                    <StyledButton type='primary'
-                                  title='Settle'
+                {needBtn ? <View style={styles.confirmationButton}> 
+                                <StyledButton type='primary'
+                                  title={btnTitle}
                                   onPress={() => {
-                                    navigator.navigate('Confirm settle', navigation.route.params)
+                                    navigator.navigate(btnScreenNavigation, informationObject)
                                   }}/>
-                </View>
+                            </View> : null }
             </View>
         // </View>
     )

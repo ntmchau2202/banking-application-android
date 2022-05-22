@@ -56,11 +56,9 @@ export const LoginScreen = (props) => {
                         if ('error' in result) {
                             toggleWarning(true)
                             setLoginContent('Login failed')
-                            // console.log(result)
                         } else {
                             // TODO: CREATE CUSTOMER INSTANCE HERE!
                             profile.currentCustomer = result
-                            console.log(profile.currentCustomer)
                             navigation.navigate('Main menu', {
                                 name: result.id,
                                 content: result.name,

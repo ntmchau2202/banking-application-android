@@ -14,7 +14,8 @@ const SavingsListScreen = (navigation) => {
         <View>
             <SearchBar placeholder='Enter bank account here...'/>
             {/* <TransactionList content={navigation.route.params}/> */}
-            <SavingsAccountList content={profile.currentCustomer.bankAccounts[0].savingsAccounts} />
+            {/* <SavingsAccountList content={profile.currentCustomer.bankAccounts[0].savingsAccounts} /> */}
+            <SavingsAccountList content={profile.currentCustomer.bankAccounts}/>
         </View>
     )
 }

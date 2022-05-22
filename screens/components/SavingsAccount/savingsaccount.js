@@ -7,6 +7,7 @@ class SavingsAccount {
         this.state = {
             creationConfirmed: props.txn.creationConfirmed,
             settleConfirmed: props.txn.settleConfirmed,
+            bankAccountID: props.txn.bankAccountID,
             savingsAccountID: props.txn.id,
             savingsPeriod: props.txn.period,
             interestRate: props.txn.rate,
@@ -18,8 +19,8 @@ class SavingsAccount {
             openTime: props.txn.openTime,
             settleTime: props.txn.settleTime,
             savingsType: props.txn.type,
+            status: props.txn.status
         }
-        console.log("this.state", this.state)
     }
 
     render(navName) {

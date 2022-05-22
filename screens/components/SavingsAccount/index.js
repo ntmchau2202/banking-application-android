@@ -10,13 +10,20 @@ const SavingsAccountItem = (props) => {
 }
 
 const SavingsAccountList = (props) => {
-    console.log("txnList props:", props)
+    let listSavingsAccount = []
+    for (let i = 0; i < props.content.length; i++) {
+        listSavingsAccount = listSavingsAccount.concat(props.content[i].savingsAccounts)
+        for (let k = 0; k < props.content[i].length; k++) {
+        }
+    }
+
     return (
         <View style={styles.container}>
             <FlatList 
-             data={props.content}
-             renderItem={({item}) => <SavingsAccountItem txn={item}/>}
-             keyExtractor={item => item.txnHash}/>
+            //  data={props.content}
+            data={listSavingsAccount}
+            renderItem={({item}) => <SavingsAccountItem txn={item}/>}
+            keyExtractor={item => item.txnHash}/>
         </View>
     )
 }

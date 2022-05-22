@@ -9,6 +9,8 @@ const styles = StyleSheet.create({
 
     tableContainer: {
         padding: 10,
+        flexDirection: 'column',
+        alignContent: 'flex-start',
     },
 
     tableRow: {
@@ -66,6 +68,9 @@ const styles = StyleSheet.create({
 
     confirmationButton: {
         flex: 1,
+        position: 'absolute',
+        bottom: 20,
+        width: Dimensions.get('window').width
     }
 
   });

@@ -45,11 +45,13 @@ class SavingsAccount {
     // }
 
     constructor(obj) {
+        console.log("original object:", obj)
         this.id = obj.savingsaccount_id
         this.type = obj.product_type
         this.period = obj.savings_period
         this.amount = obj.savings_amount
         this.estimateInterest = obj.estimated_interest_amount
+        this.bankAccountID = obj.bankaccount_id
         this.actualInterest = obj.actual_interest_amount
         this.rate = obj.interest_rate
         this.instruction = obj.settle_instruction
@@ -58,6 +60,7 @@ class SavingsAccount {
         this.creationConfirmed = obj.creation_confirmed
         this.settleConfirmed = obj.settle_confirmed
         this.currency = obj.currency
+        this.status = obj.confirm_status
     }
 }
 

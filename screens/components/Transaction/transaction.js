@@ -4,7 +4,6 @@ import styles from './styles'
 
 export class OpenTransaction {
     constructor(props) {
-        console.log("props:", props)
         this.state = {
             name: props.txn.name,
             txnHash: props.txn.txnHash,

@@ -39,8 +39,6 @@ const CreateNewSavingsScreen = () => {
     const [currentBalance, setCurrentBalance] = useState(0)
 
     let calculateInterest = (amt) => {
-        console.log("input amt:", amt)
-        console.log('selected period:', selectedInterest)
         if (amt.length === 0) {
             amt = 0
         }
@@ -50,13 +48,9 @@ const CreateNewSavingsScreen = () => {
             result = amt / 100 * (selectedInterest / 365 * 30 * selectedPeriod)
         }
         setEstimatedInterest(result)
-        console.log("estimatedInterest:", estimatedInterest)
     }
 
     let renewInterest = (amt, interest, period) => {
-        console.log("in renewInterest")
-        console.log("input amt:", amt)
-        console.log('selected period:', interest)
         if (amt.length === 0) {
             amt = 0
         }
@@ -66,7 +60,6 @@ const CreateNewSavingsScreen = () => {
             result = amt / 100 * (interest / 365 * 30 * period)
         }
         setEstimatedInterest(result)
-        console.log("estimatedInterest:", estimatedInterest)
     }
     return (
         <View style={styles.container}>
@@ -229,11 +222,23 @@ const CreateNewSavingsScreen = () => {
 
 export const ConfirmCreateNewSavingsScreen = (navigation) => {
     let navigator = useNavigation()
+    let currentTime = null 
+    console.log("received obj:", navigation.route.params)
+    if ('openTime' in navigation.route.params) {
+        currentTime = navigation.route.params.openTime
+    } else {
+        currentTime = new Date().toUTCString()
+    }
+
     return(
         <View style={styles.container}>
             <View style={styles.orderItem}>
                 <Text style={styles.orderLabel}>Source</Text>
                 <Text style={styles.orderDetails}>{navigation.route.params.source.id}</Text>
+            </View>
+            <View style={styles.orderItem}>
+                <Text style={styles.orderLabel}>Savings account ID</Text>
+                <Text style={styles.orderDetails}>{'savingsAccountID' in navigation.route.params ? navigation.route.params.savingsAccountID : '< waiting for server >'}</Text>
             </View>
             <View style={styles.orderItem}>
                 <Text style={styles.orderLabel}>Savings amount</Text>
@@ -259,6 +264,11 @@ export const ConfirmCreateNewSavingsScreen = (navigation) => {
                 <Text style={styles.orderLabel}>Settle instruction</Text>
                 <Text style={styles.orderDetails}>{navigation.route.params.settleInstruction}</Text>
             </View>
+            <View style={styles.orderItem}>
+                <Text style={styles.orderLabel}>Open time</Text>
+                <Text style={styles.orderDetails}>{currentTime}</Text>
+            </View>
+            
             <StyledButton type='primary'
                             title='Confirm'
                             onPress={() => {
@@ -270,6 +280,7 @@ export const ConfirmCreateNewSavingsScreen = (navigation) => {
                                     "customer_phone": profile.currentCustomer.phone,
                                     "product_type": "Online",
 		                            "bankaccount_id": navigation.route.params.source.id,
+                                    "savingsaccount_id": navigation.route.params.savingsAccountID,
                                     "savings_amount": parseFloat(navigation.route.params.savingsAmount),
                                     "estimated_interest_amount": parseFloat(navigation.route.params.estimatedInterestAmount),
                                     "open_time": currentTime,  
@@ -278,9 +289,8 @@ export const ConfirmCreateNewSavingsScreen = (navigation) => {
                                     "customer_id": profile.currentCustomer.id,
                                     "interest_rate": parseFloat(navigation.route.params.interestRate),
                                     "currency": navigation.route.params.currency,
+                                    "open_time": currentTime,
                                 }
-
-                                console.log(message)
 
                                 let connector = new Client()
 
@@ -288,18 +298,17 @@ export const ConfirmCreateNewSavingsScreen = (navigation) => {
                                     if (typeof(response) == 'object') {
                                         if ('error' in response) {
                                             console.warn("An error occured when creating new account")
-                                            console.log(response)
                                         }
                                     } else {
                                         console.warn("Account created successfully")
                                     }
                                 })
                             }}/>
-            <StyledButton type='secondary'
+            {/* <StyledButton type='secondary'
                             title='Go back'
                             onPress={() => {
                                 navigator.navigate('New savings account')
-                            }}/>
+                            }}/> */}
         </View>
     )
 }

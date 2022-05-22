@@ -22,11 +22,22 @@ function calculateActualInterestAmount(savingsAmount, interestRate, openTimeStri
 
 
 const ConfirmSettleScreen = (navigation) => {
-    let navigator = useNavigation()
-    console.log("current account to be settled:", navigation.route.params)
-    let actualInterestAmount = calculateActualInterestAmount(navigation.route.params.savingsAmount,
-                                navigation.route.params.interestRate,
-                                navigation.route.params.openTime)
+    let actualInterestAmount = 0
+    if (!'actualInterestAmount' in navigation.route.params || navigation.route.params.actualInterestAmount === 0) {
+        actualInterestAmount = calculateActualInterestAmount(navigation.route.params.savingsAmount,
+            navigation.route.params.interestRate,
+            navigation.route.params.openTime)
+    } else {
+        actualInterestAmount = navigation.route.params.actualInterestAmount
+    }
+    
+    let currentTime = null 
+    if ('settleTime' in navigation.route.params) {
+        currentTime = navigation.route.params.settleTime
+    } else {
+        currentTime = new Date().toUTCString()
+    }
+
     return(
         <View style={styles.container}>
             <View style={styles.orderItem}>
@@ -49,21 +60,23 @@ const ConfirmSettleScreen = (navigation) => {
                 <Text style={styles.orderLabel}>Currency</Text>
                 <Text style={styles.orderDetails}>{navigation.route.params.currency}</Text>
             </View>
+            <View style={styles.orderItem}>
+                <Text style={styles.orderLabel}>Settle time</Text>
+                <Text style={styles.orderDetails}>{currentTime}</Text>
+            </View>
             <StyledButton type='primary'
                             title='Confirm'
                             onPress={() => {
                                 console.warn("going to settle account")
                                 // const client = new Client()
                                 // profile.connector = client
-                                let currentTime = new Date().toUTCString()
+                               
                                 let message = {
                                     "customer_phone": profile.currentCustomer.phone,
                                     "actual_interest_amount": actualInterestAmount,
                                     "settle_time": currentTime,  
                                     "savingsaccount_id": navigation.route.params.savingsAccountID,
                                 }
-
-                                console.log(message)
 
                                 let connector = new Client()
 
@@ -78,11 +91,11 @@ const ConfirmSettleScreen = (navigation) => {
                                     }
                                 })
                             }}/>
-            <StyledButton type='secondary'
+            {/* <StyledButton type='secondary'
                             title='Go back'
                             onPress={() => {
                                 navigator.navigate('Savings list')
-                            }}/>
+                            }}/> */}
         </View>
     )
 }

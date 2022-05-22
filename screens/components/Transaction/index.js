@@ -14,7 +14,6 @@ const TransactionItem = (props) => {
 }
 
 const TransactionList = (props) => {
-    console.log("txnList props:", props)
     return (
         <View style={styles.container}>
             <FlatList 
