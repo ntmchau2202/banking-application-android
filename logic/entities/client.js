@@ -29,8 +29,14 @@ class Client {
             timeout: profile.timeOut,
             headers: profile.headers
         })
+        const moralisClient = axios.create({
+            baseURL: profile.moralisUrl,
+            timeout: profile.timeOut,
+            headers: profile.moralisHeaders,
+        })
         this.httpClient = httpClient
         this.blockchainInteractor = blockchainInteractor
+        this.moralisClient = moralisClient
     }
 
     createMessage(command, details) {
@@ -50,6 +56,35 @@ class Client {
     addWallet(privateKey) {
         const blockchainInteractor = new BlockchainInteractor(privateKey)
         this.blockchainInteractor = blockchainInteractor
+    }
+
+    async getTransactionDetailsByHash(type, hash) {
+        const instance = this
+        let information = null
+        try {
+            let uri = '/transaction/' + hash 
+            console.log("uri:", uri)
+            await this.moralisClient.get(uri, {
+                params: {
+                    chain: profile.defaultChain
+                }
+            }).then(function(response) {
+                if(response.status === 200) {
+                    let body = response.data.input
+                    information = instance.blockchainInteractor.decodeInput(type, body)
+                    return information
+                } else {
+                    console.log(response)
+                    throw 'an error occured when fetching transaction details'
+                }
+            }).catch(function(error) {
+                throw error
+            })
+        } catch(error) {
+            console.log(error)
+            throw error
+        }   
+        return information
     }
 
     // ok
@@ -155,6 +190,93 @@ class Client {
             "actual_interest_amount": txn.actual_interest_amount,
             "settle_time": txn.settle_time
         }
+    }
+
+    async verifySettlement(account) {
+        const instance = this 
+        // create message
+        try {
+            await this.httpClient.post("/savings/signature", this.createMessage(command.signature, {
+                "customer_phone": profile.currentCustomer.phone,
+                "savingsaccount_id": profile.currentWorkingSavingsAccount.savingsAccountID,
+                "transaction_type": "settle",
+            })).then(function(response){
+                if(response.status === 200) {
+                    let bankSig = response.data.details.signature 
+                    console.log(account)
+                    let message = {
+                        "savingsaccount_id": account.savingsAccountID,
+                        "actual_interest_amount": account.actualInterestAmount,
+                        "settle_time": account.settleTime,
+                    }
+                    instance.blockchainInteractor.verifySignature(message, bankSig)
+                        .then(function(result){
+                            console.log("returned result:", result)
+                            if (result[0] === true) {
+                                // valid
+                                console.warn("Information is valid")
+                            } else {
+                                // invalid
+                                console.warn("Information mismatch. Please contact the bank for more information")
+                            }
+                        }).catch(function(error) {
+                            throw error
+                        })
+                }
+            }).catch(function(error){
+                throw error
+            })
+        } catch(error) {
+            throw error
+        }
+    }
+
+    async verifyCreation(account) {
+        const instance = this 
+        // create message
+        try {
+            await this.httpClient.post("/savings/signature", this.createMessage(command.signature, {
+                "customer_phone": profile.currentCustomer.phone,
+                "savingsaccount_id": profile.currentWorkingSavingsAccount.savingsAccountID,
+                "transaction_type": "create"
+            })).then(function(response){
+                if(response.status === 200) {
+                    let bankSig = response.data.details.signature 
+                    console.log(account)
+                    let message = {
+                        "savingsaccount_id": account.savingsAccountID,
+                        "product_type": account.savingsType,
+                        "bankaccount_id": account.bankAccountID,
+                        "savings_amount": account.savingsAmount,
+                        "estimated_interest_amount": account.estimatedInterestAmount,
+                        "open_time": account.openTime,
+                        "savings_period": account.savingsPeriod,
+                        "settle_instruction": account.settleInstruction,
+                        "customer_id": profile.currentCustomer.customer_id,
+                        "interest_rate": account.interestRate,
+                        "currency": account.currency,
+                    }
+                    instance.blockchainInteractor.verifySignature(message, bankSig)
+                        .then(function(result){
+                            console.log("returned result:", result)
+                            if (result[0] === true) {
+                                // valid
+                                console.warn("Information is valid")
+                            } else {
+                                // invalid
+                                console.warn("Information mismatch. Please contact the bank for more information")
+                            }
+                        }).catch(function(error) {
+                            throw error
+                        })
+                }
+            }).catch(function(error){
+                throw error
+            })
+        } catch(error) {
+            throw error
+        }
+        
     }
 
     async requestSettleAccount(txn) {

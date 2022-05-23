@@ -7,6 +7,7 @@ import StyledInput from '../../components/StyledInput/index.js';
 import styles from './styles.js'
 import { useNavigation } from '@react-navigation/native';
 import { FieldMap } from './fieldmap';
+import { profile } from '../../../logic/constant/env.js';
 
 const TableColumnTitle = (props) => {
     return ( 
@@ -31,8 +32,34 @@ const TableColumnContent = (props) => {
 }
 
 const TableRowAttribute = (props) => {
+    let navigation = useNavigation()
+    let originalObject = props
+    let method = originalObject.name === "Creation hash" ? "BroadcastOpenAccountTransaction" : "BroadcastSettleAccountTransaction"
     return (
-        <TouchableOpacity style={styles.tableRow}>
+        <TouchableOpacity style={styles.tableRow}
+                            onPress={()=>{
+                                let data = null 
+                                if(props.name.includes("hash")) {
+                                    try {
+                                        profile.connector.getTransactionDetailsByHash(method, originalObject.content)
+                                        .then(function(result){
+                                            console.log("fetched result:", result)
+                                            data = result
+                                            navigation.navigate('Hash details', {
+                                                name: props.name,
+                                                content: props.content,
+                                                sig1: data[2][0],
+                                                sig2: data[2][1],
+                                            })
+                                        }).catch(function(error) { 
+                                            throw error
+                                        })
+                                    } catch (error) {
+                                        console.log(error)
+                                        throw error
+                                    }
+                                }
+                            }}>
             <TableColumnTitle name={props.name}/>
             <TableColumnContent content={props.content}/>
         </TouchableOpacity>
@@ -45,6 +72,7 @@ const SavingsAccountDetails = (navigation) => {
     const navigator = useNavigation()
     console.log("account:", navigation.route.params)
     let originalObj = navigation.route.params
+    profile.currentWorkingSavingsAccount = originalObj
     const mapProps = Object.entries(originalObj).map(([k, v]) => ({key: FieldMap[k], value: v}))
     let needBtn = false 
     let btnTitle = ''

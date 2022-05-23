@@ -11,6 +11,7 @@ import SavingsListScreen from './screens/basics/TransactionScreen/index';
 import CreateNewSavingsScreen from './screens/basics/CreateNewSavingsScreen';
 import { ConfirmCreateNewSavingsScreen } from './screens/basics/CreateNewSavingsScreen';
 import ConfirmSettleScreen from './screens/basics/SettleSavingsScreen';
+import HashInformationScreen from './screens/basics/HashInformationScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -62,6 +63,8 @@ export default function App() {
                       name='Confirm creation'/>
         <Stack.Screen component={ConfirmSettleScreen}
                       name='Confirm settle'/>
+        <Stack.Screen component={HashInformationScreen}
+                      name='Hash details'/>
       </Stack.Navigator>
     </NavigationContainer>
   );

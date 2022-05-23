@@ -175,6 +175,26 @@ class BlockchainInteractor {
         let settleTransactions = fetchSettleTransactionsFromChain()
         return openTransactions, settleTransactions
     }
+
+    decodeInput(method, data) {
+        return this.abi.decodeFunctionData(method, data)
+    }
+
+    async verifySignature(originalMessage, bankSignature) {
+        if (!this.wallet.verifier.verifyMessage(originalMessage, bankSignature, profile.bankOwner)) {
+            throw 'WARNING: invalid bank signature on message! Please contact the bank for more information!'
+        }
+        let txnString = JSON.stringify(originalMessage)
+        var signature = await this.wallet.verifier.signMessage(txnString)
+        console.log("signature:", signature)
+        const hashedTxn = this.wallet.verifier.hashMessage(txnString)
+        console.log("hashedTx:", hashedTxn)
+
+        let contractInstance = new ethers.Contract(profile.contractAddress, CONTRACT_ABI, this.wallet.node)
+        console.log("contract instance created successfully")
+        let result = await contractInstance.verifyUser(hashedTxn, [signature, bankSignature])
+        return result
+    }
 }
 
 class Verifier  {
