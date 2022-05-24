@@ -35,7 +35,19 @@ export const AccountMenuScreen = () =>  {
             <AccountOption name='Logout'
                             content=''/>
             <AccountOption name='Deactive account'
-                            content=''/>
+                            content={async ()=>{
+                                let isEnrolled = await isMemberEnrolled()
+                                if (isEnrolled) {
+                                    let success = await deactivateAccount()
+                                    if (success) {
+                                        console.warn("Deactivate account successfully")
+                                    } else {
+                                        console.warn("Deactivate account failed")
+                                    }
+                                } else {
+                                    console.warn("User didn't enrolled in the service")
+                                }
+                            }}/>
         </View>
     )
 }
@@ -108,11 +120,46 @@ const registerService = async (customerID, password) => {
                         } else {
                             return false
                         }
+                    }).catch(function(error) {
+                        throw error
                     })
     } catch (error) {
         throw error
     }
     return result
+}
+
+const deactivateAccount = async () => {
+    // load wallet and get address
+
+    const path = FileSystem.documentDirectory + 'sample.json'
+    let stringToDecrypt = await FileSystem.readAsStringAsync(path,{ encoding: FileSystem.EncodingType.UTF8 } )
+    console.log("stringToDecrypt:", stringToDecrypt)
+    let obj = JSON.parse(stringToDecrypt)
+    const decrypted = CryptoES.AES.decrypt(obj.key, password).toString(CryptoES.enc.Utf8)
+    console.log("decrypted:", decrypted)
+
+    const node = new ethers.providers.WebSocketProvider("wss://speedy-nodes-nyc.moralis.io/f2b19a3c16403baa4483c731/polygon/mumbai/ws")
+    const wallet = new ethers.Wallet(decrypted, node)
+    const addr = wallet.address
+    let result = null
+    try {
+        result = profile.connector.deactivateAccount(addr)
+                    .then(function(response) {
+                        if(response.status == "success") {
+                            return true
+                        } else {
+                            return false
+                        }
+                    }).catch(function(error) {
+                        throw error
+                    })
+    } catch (error) {
+        throw error
+    }
+    
+    return result
+
 }
 
 export const AccountOption = (props) => {

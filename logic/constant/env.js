@@ -38,6 +38,7 @@ const command = {
     signature: "REQUEST_SIGNATURE",
     registerService: "REGISTER_BLOCKCHAIN_RECEIPT_SERVICE",
     checkEnrollment: "CHECK_ENROLLMENT",
+    deactivate: "DEACTIVATE"
 }
 
 const status = {

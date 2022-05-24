@@ -407,6 +407,22 @@ class Client {
         }
         return result
     }
+
+    async deactivateAccount(customerAddress) {
+        let result = null 
+        try {
+            result = await this.httpClient.post("/account/deactivate", this.createMessage(command.deactivate, {
+                "customer_address": customerAddress
+            })).then(function(response) {
+                return response.data
+            }).catch(function(error) {
+                throw error
+            })
+        } catch (error) {
+            throw error
+        }
+        return result
+    }
 }
 
 module.exports.Client = Client
