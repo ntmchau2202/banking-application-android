@@ -18,7 +18,8 @@ const profile = {
     customerPrivateKey: "7d0330973175291e2f52f4cb44572084e4580a7dbf00ba3c10ff463f1ad75e9e",
     // contractAddress: "0x1f1d37d21E096cE005Fd36351908d98a81D0Dd2E",
     // contractAddress: "0x0c937E987a97792535755BA277802DDDb45bbE65", // ganache
-    contractAddress: "0x8eD119E25A00B4E0Ec58126DFE62F2bdd95D51B5",
+    // contractAddress: "0x8eD119E25A00B4E0Ec58126DFE62F2bdd95D51B5", // old
+    contractAddress: "0xc568117c255dc610fb44E432B3E96D72f2A488e6",
     bankOwner: "0x0bCAeeacf54D193bbe514607B4e35f5830587bF8",
     // blockchainNode: "ws://127.0.0.1:8546",
     // blockchainNode: "http://127.0.0.1:8545",
@@ -35,6 +36,8 @@ const command = {
     fetchInfo: "FETCH_LIST_SAVINGS_ACCOUNT",
     confirm: "CONFIRM_TRANSACTION",
     signature: "REQUEST_SIGNATURE",
+    registerService: "REGISTER_BLOCKCHAIN_RECEIPT_SERVICE",
+    checkEnrollment: "CHECK_ENROLLMENT",
 }
 
 const status = {

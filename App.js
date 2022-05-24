@@ -12,6 +12,7 @@ import CreateNewSavingsScreen from './screens/basics/CreateNewSavingsScreen';
 import { ConfirmCreateNewSavingsScreen } from './screens/basics/CreateNewSavingsScreen';
 import ConfirmSettleScreen from './screens/basics/SettleSavingsScreen';
 import HashInformationScreen from './screens/basics/HashInformationScreen';
+import { AccountMenuScreen } from './screens/basics/AccountInformationScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -53,6 +54,8 @@ export default function App() {
                       name='Login'/>
         <Stack.Screen component={MainMenu}
                       name='Main menu'/>
+        <Stack.Screen component={AccountMenuScreen}
+                      name='My account'/>
         <Stack.Screen component={SavingsListScreen}
                       name='Savings list'/>
         <Stack.Screen component={TransactionDetails}

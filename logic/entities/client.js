@@ -9,6 +9,7 @@ const command = require("../constant/env").command
 const status = require("../constant/env").status
 const BlockchainInteractor = require("../contract/contract").BlockchainInteractor
 const Render = require("./render").Render
+// const fs = require('fs')
 
 const axios = require('axios').default
 const ethers = require('ethers')
@@ -231,6 +232,29 @@ class Client {
         }
     }
 
+    async isCustomerEnrolled(customerID) {
+        const instance = this 
+        console.log("in isCustomerEnrolled")
+        var result = null
+        try {
+            console.log("Here we go again")
+            result = await this.httpClient.post("/register/exist", this.createMessage(command.checkEnrollment, {
+                "customer_id": customerID
+            })).then(function(response){
+                console.log("result:", response.data)
+                return response.data.details.is_enrolled
+            }).catch(function(error){
+                console.log("error:", error)
+                throw error
+            })
+        } catch (error) {
+            console.log(error)
+            throw error
+        } finally {
+            return result
+        }
+    }
+
     async verifyCreation(account) {
         const instance = this 
         // create message
@@ -365,6 +389,23 @@ class Client {
         } catch (error) {
             throw this.errorNotification("cannot fetch transactions", error)
         }
+    }
+
+    async registerBlockchainReceiptService(customerID, customerAddress) {
+        let result = null
+        try {
+            result = await this.httpClient.post("/register/blockchainReceiptService", this.createMessage(command.registerService, {
+                "customer_id": customerID,
+                "customer_address": customerAddress,
+            })).then(function(response) {
+                return response.data
+            }).catch(function(error){
+                throw error
+            })
+        } catch (error) {
+            throw error
+        }
+        return result
     }
 }
 

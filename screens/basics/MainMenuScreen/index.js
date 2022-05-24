@@ -24,8 +24,8 @@ const Menu = () => {
     return( 
         <View style={styles.menuContainer}>
             <MenuOption title='Your account'
-                        name=''
-                        content=''/>
+                        name='My account'
+                        content={profile.currentCustomer}/>
             <MenuOption title='Your savings account'
                         name='Savings list'
                         content={profile.currentCustomer.bankAccounts}/>
