@@ -1,15 +1,12 @@
-import React, { useState } from 'react';
-import { View, Text, Image, TouchableOpacity} from 'react-native';
+import { View, Text, TouchableOpacity} from 'react-native';
 import styles from './styles';
 import { useNavigation } from '@react-navigation/native';
 import { profile } from '../../../logic/constant/env';
-import StyledInput from "../../components/StyledInput";
-import StyledButton from '../../components/StyledButton';
-// import 'react-native-get-random-values';
 import * as Random from 'expo-random'
-// import 'ethers/dist/shims.js';
 import { ethers } from 'ethers';
-import { entropyToMnemonic } from 'ethers/lib/utils';
+import CryptoES from 'crypto-es'
+import * as FileSystem from 'expo-file-system'
+
 export const AccountMenuScreen = () =>  {
     return (
         <View style={styles.containner}>
@@ -17,7 +14,7 @@ export const AccountMenuScreen = () =>  {
                             content={async ()=>{
                                 let isEnrolled = await isMemberEnrolled()
                                 if (!isEnrolled) {   
-                                    let registerSuccessfully = await registerService()
+                                    let registerSuccessfully = await registerService(profile.currentCustomer.id, "2222")
                                     if (registerSuccessfully) {
                                         console.warn("Register service successfully")
                                     } else {
@@ -74,7 +71,7 @@ const createRandomWallet = async () => {
     return wallet
 }
 
-const registerService = async (customerID) => {
+const registerService = async (customerID, password) => {
     console.log("Get into register service")
     let result = null 
     // create a new wallet 
@@ -84,6 +81,24 @@ const registerService = async (customerID) => {
     console.log("customerAddress:", customerAddress)
     console.log("customerPrivateKey:", customerPrivateKey)
     // todo: save private key here
+    const encrypted = CryptoES.AES.encrypt(customerPrivateKey, password).toString()
+    console.log("encrypted:", encrypted)
+    // try to save this to a file
+    let objToWrite = {
+        "key": encrypted,
+    }
+
+    let stringToWrite = JSON.stringify(objToWrite)
+
+    const path = FileSystem.documentDirectory + 'sample.json'
+    console.log('path:', path)
+    await FileSystem.writeAsStringAsync(path, stringToWrite,{ encoding: FileSystem.EncodingType.UTF8 })
+    let stringToDecrypt = await FileSystem.readAsStringAsync(path,{ encoding: FileSystem.EncodingType.UTF8 } )
+    console.log("stringToDecrypt:", stringToDecrypt)
+    let obj = JSON.parse(stringToDecrypt)
+    const decrypted = CryptoES.AES.decrypt(obj.key, password).toString(CryptoES.enc.Utf8)
+    console.log("decrypted:", decrypted)
+    // return
     try {
         result = profile.connector.registerBlockchainReceiptService(customerID, customerAddress)
                     .then(function(response){
