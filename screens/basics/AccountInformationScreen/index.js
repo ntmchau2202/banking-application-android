@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity} from 'react-native';
+import { View, Text, TouchableOpacity, Alert} from 'react-native';
 import styles from './styles';
 import { useNavigation } from '@react-navigation/native';
 import { profile } from '../../../logic/constant/env';
@@ -6,26 +6,35 @@ import * as Random from 'expo-random'
 import { ethers } from 'ethers';
 import CryptoES from 'crypto-es'
 import * as FileSystem from 'expo-file-system'
+import StyledInput from '../../components/StyledInput';
+import StyledButton from '../../components/StyledButton';
+import { useState } from 'react';
+import {Clipboard} from 'expo-clipboard'
 
 export const AccountMenuScreen = () =>  {
+    const navigator = useNavigation()
     return (
         <View style={styles.containner}>
             <AccountOption name='Register blockchain receipt service'
                             content={async ()=>{
                                 let isEnrolled = await isMemberEnrolled()
                                 if (!isEnrolled) {   
-                                    let registerSuccessfully = await registerService(profile.currentCustomer.id, "2222")
-                                    if (registerSuccessfully) {
-                                        console.warn("Register service successfully")
-                                    } else {
-                                        console.warn("Register failed")
-                                    }
-                                } else {
-                                    console.warn("User already enrolled in the service")
+                                //     let registerSuccessfully = await registerService(profile.currentCustomer.id, "2222")
+                                //     if (registerSuccessfully) {
+                                //         console.warn("Register service successfully")
+                                //     } else {
+                                //         console.warn("Register failed")
+                                //     }
+                                // } else {
+                                //     console.warn("User already enrolled in the service")
+                                    navigator.navigate('Enter new passcode')
+
                                 }
                             }}/>
             <AccountOption name='Export private key'
-                            content=''/>
+                            content={() => {
+                                navigator.navigate('Unlock private key')
+                            }}/>
             <AccountOption name='Export passphrase'
                             content=''/>
             <AccountOption name='Change password'
@@ -48,6 +57,110 @@ export const AccountMenuScreen = () =>  {
                                     console.warn("User didn't enrolled in the service")
                                 }
                             }}/>
+        </View>
+    )
+}
+
+export const EnterNewPasscodeScreen = () => {
+    const [passcode, setPasscode] = useState('')
+    return (
+        <View>
+            <Text>Enter your new password....</Text>
+            <StyledInput placeholer='Enter your new password here'
+                            value={passcode}
+                            setValue={setPasscode}/>
+            <StyledButton type='primary'
+                            title='Register service'
+                            onPress={async ()=>{
+                                if (passcode.length === 0) {
+                                    Alert.alert("Please enter a passcode")
+                                } else {
+                                    try {
+                                        // save passcode to a file
+                                        let objToWrite = {
+                                            "u": profile.currentCustomer.id,
+                                            "p": passcode,
+                                        }
+                                    
+                                        let stringToWrite = JSON.stringify(objToWrite)
+                                    
+                                        const path = FileSystem.documentDirectory + profile.currentCustomer.id + "inf.js"
+                                        console.log('path:', path)
+                                        await FileSystem.writeAsStringAsync(path, stringToWrite,{ encoding: FileSystem.EncodingType.UTF8 })
+
+                                        let ok = registerService(profile.currentCustomer.id, passcode)
+                                        if (ok) {
+                                            Alert.prompt("Register successfully")
+                                        } else {
+                                            Alert.prompt("An error occured when register service")
+                                        }
+                                    } catch (error) {
+                                        Alert.alert("An unexpected error occurred")
+                                        console.log("Error when registering:", error)
+                                    }
+                                }
+                            }}/>
+        </View>
+    )
+}
+
+export const UnlockPrivateKeyScreen = () => {
+    const path = FileSystem.documentDirectory + profile.currentCustomer.id + "inf.js"
+    let customerInformation = FileSystem.readAsStringAsync(path,{ encoding: FileSystem.EncodingType.UTF8 } )
+                            .then(function(result) {
+                                return result
+                            })
+    console.log("stringToDecrypt:", customerInformation)
+    let obj = JSON.parse(customerInformation)
+    let pwd = obj.p 
+
+    const [passcode, setPasscode] = useState('')
+    const navigator = useNavigation()
+    return (
+        <View>
+            <StyledInput placeholer='Enter your new password here'
+                            value={passcode}
+                            setValue={setPasscode}/>
+            <StyledButton type='primary'
+                            title='Get private key'
+                            onPress={async ()=>{
+                                if (passcode.length === 0) {
+                                    Alert.alert("Please enter password")
+                                } else {
+                                    if (passcode === pwd) {
+                                        const privPath = FileSystem.documentDirectory + 'sample.json'
+                                        let stringToDecrypt = await FileSystem.readAsStringAsync(privPath, { encoding: FileSystem.EncodingType.UTF8 } )
+                                        console.log("stringToDecrypt:", stringToDecrypt)
+                                        let obj = JSON.parse(stringToDecrypt)
+                                        const decrypted = CryptoES.AES.decrypt(obj.key, passcode).toString(CryptoES.enc.Utf8)
+                                        navigator.navigate('Private key', {
+                                            p: decrypted
+                                        })
+                                    } else {
+                                        Alert.alert("Invalid passcode")
+                                    }   
+                                }
+                            }}/>
+        </View>
+    )
+}
+
+export const PrivateKeyScreen = (navigation) => {
+    const privateKey = navigation.route.params.p
+    return (
+        <View>
+            <Text>
+                Your private key:
+            </Text>
+            <Text>
+                {privateKey}
+            </Text>
+            <StyledButton type='secondary'
+                            title='Copy to clipboard'
+                            onPress={() => {    
+                                Clipboard.setString(privateKey)
+                                console.warn("Copied to clipboard!")
+                            }} />
         </View>
     )
 }
@@ -78,7 +191,12 @@ const createRandomWallet = async () => {
     // connect to node provider
     console.log("private Key:", privateKey)
     console.log("address:", addr)
-    const node = new ethers.providers.WebSocketProvider("wss://speedy-nodes-nyc.moralis.io/f2b19a3c16403baa4483c731/polygon/mumbai/ws")
+    // const node = new ethers.providers.InfuraProvider('maticmum', {
+    //     projectId: "7d8f19d50b954a0fa348985e6079f108",
+    //     projectSecret: "05a5c4239e914fef9b00bfecbd456a61",
+    // })
+    const node = new ethers.providers.WebSocketProvider("https://speedy-nodes-nyc.moralis.io/f2b19a3c16403baa4483c731/polygon/mumbai/archive")
+
     const wallet = new ethers.Wallet(privateKey, node)
     return wallet
 }
@@ -110,7 +228,7 @@ const registerService = async (customerID, password) => {
     let obj = JSON.parse(stringToDecrypt)
     const decrypted = CryptoES.AES.decrypt(obj.key, password).toString(CryptoES.enc.Utf8)
     console.log("decrypted:", decrypted)
-    // return
+    return
     try {
         result = profile.connector.registerBlockchainReceiptService(customerID, customerAddress)
                     .then(function(response){
@@ -139,7 +257,12 @@ const deactivateAccount = async () => {
     const decrypted = CryptoES.AES.decrypt(obj.key, password).toString(CryptoES.enc.Utf8)
     console.log("decrypted:", decrypted)
 
-    const node = new ethers.providers.WebSocketProvider("wss://speedy-nodes-nyc.moralis.io/f2b19a3c16403baa4483c731/polygon/mumbai/ws")
+    // const node = new ethers.providers.InfuraProvider('maticmum', {
+    //     projectId: "7d8f19d50b954a0fa348985e6079f108",
+    //     projectSecret: "05a5c4239e914fef9b00bfecbd456a61",
+    // })
+    const node = new ethers.providers.WebSocketProvider("https://speedy-nodes-nyc.moralis.io/f2b19a3c16403baa4483c731/polygon/mumbai/archive")
+
     const wallet = new ethers.Wallet(decrypted, node)
     const addr = wallet.address
     let result = null

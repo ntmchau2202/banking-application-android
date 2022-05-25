@@ -12,7 +12,7 @@ import CreateNewSavingsScreen from './screens/basics/CreateNewSavingsScreen';
 import { ConfirmCreateNewSavingsScreen } from './screens/basics/CreateNewSavingsScreen';
 import ConfirmSettleScreen from './screens/basics/SettleSavingsScreen';
 import HashInformationScreen from './screens/basics/HashInformationScreen';
-import { AccountMenuScreen } from './screens/basics/AccountInformationScreen';
+import { AccountMenuScreen, EnterNewPasscodeScreen, UnlockPrivateKeyScreen, PrivateKeyScreen } from './screens/basics/AccountInformationScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -68,6 +68,12 @@ export default function App() {
                       name='Confirm settle'/>
         <Stack.Screen component={HashInformationScreen}
                       name='Hash details'/>
+        <Stack.Screen component={EnterNewPasscodeScreen}
+                      name='Enter new passcode'/>
+        <Stack.Screen component={UnlockPrivateKeyScreen}
+                      name='Unlock private key'/>
+        <Stack.Screen component={PrivateKeyScreen}
+                      name='Private key'/>
       </Stack.Navigator>
     </NavigationContainer>
   );

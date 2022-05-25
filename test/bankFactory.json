@@ -1,32 +1,27 @@
 [
 	{
-		"inputs": [],
-		"stateMutability": "nonpayable",
-		"type": "constructor"
-	},
-	{
 		"anonymous": false,
 		"inputs": [
 			{
 				"indexed": true,
-				"internalType": "string",
-				"name": "_bankNameI",
-				"type": "string"
-			},
-			{
-				"indexed": false,
-				"internalType": "string",
-				"name": "_bankName",
-				"type": "string"
+				"internalType": "address",
+				"name": "_customerAddressI",
+				"type": "address"
 			},
 			{
 				"indexed": false,
 				"internalType": "address",
-				"name": "_bankAddr",
+				"name": "_customerAddress",
 				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "time",
+				"type": "uint256"
 			}
 		],
-		"name": "NewBank",
+		"name": "ActivateCustomer",
 		"type": "event"
 	},
 	{
@@ -34,78 +29,74 @@
 		"inputs": [
 			{
 				"indexed": true,
-				"internalType": "string",
-				"name": "_savingsAccountNumberI",
-				"type": "string"
-			},
-			{
-				"indexed": true,
-				"internalType": "string",
-				"name": "_customerIDI",
-				"type": "string"
+				"internalType": "address",
+				"name": "_customerAddressI",
+				"type": "address"
 			},
 			{
 				"indexed": false,
-				"internalType": "string",
-				"name": "_savingsAccountNumber",
-				"type": "string"
+				"internalType": "address",
+				"name": "_customerAddress",
+				"type": "address"
 			},
 			{
 				"indexed": false,
-				"internalType": "string",
-				"name": "_customerID",
-				"type": "string"
-			},
-			{
-				"indexed": false,
-				"internalType": "string",
-				"name": "_productType",
-				"type": "string"
-			},
-			{
-				"indexed": false,
-				"internalType": "string",
-				"name": "_period",
-				"type": "string"
-			},
-			{
-				"indexed": false,
-				"internalType": "string",
-				"name": "_interestRate",
-				"type": "string"
-			},
-			{
-				"indexed": false,
-				"internalType": "string",
-				"name": "_savingsAmount",
-				"type": "string"
-			},
-			{
-				"indexed": false,
-				"internalType": "string",
-				"name": "_estimatedInterestAmount",
-				"type": "string"
-			},
-			{
-				"indexed": false,
-				"internalType": "string",
-				"name": "_settleInstruction",
-				"type": "string"
-			},
-			{
-				"indexed": false,
-				"internalType": "string",
-				"name": "_openTime",
-				"type": "string"
-			},
-			{
-				"indexed": false,
-				"internalType": "string",
-				"name": "_currency",
-				"type": "string"
+				"internalType": "uint256",
+				"name": "time",
+				"type": "uint256"
 			}
 		],
-		"name": "Open",
+		"name": "DeactivateCustomer",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "_userAddress",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "time",
+				"type": "uint256"
+			}
+		],
+		"name": "NewUser",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "_customerAddressI",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "_customerAddress",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "bytes",
+				"name": "_firstSignature",
+				"type": "bytes"
+			},
+			{
+				"indexed": false,
+				"internalType": "bytes",
+				"name": "_secondSignature",
+				"type": "bytes"
+			}
+		],
+		"name": "OpenSavingsAccountTransaction",
 		"type": "event"
 	},
 	{
@@ -132,66 +123,218 @@
 		"inputs": [
 			{
 				"indexed": true,
-				"internalType": "string",
-				"name": "_savingsAccountNumberI",
-				"type": "string"
-			},
-			{
-				"indexed": true,
-				"internalType": "string",
-				"name": "_customerIDI",
-				"type": "string"
+				"internalType": "address",
+				"name": "_customerAddressI",
+				"type": "address"
 			},
 			{
 				"indexed": false,
-				"internalType": "string",
-				"name": "_savingsAccountNumber",
-				"type": "string"
+				"internalType": "address",
+				"name": "_customerAddress",
+				"type": "address"
 			},
 			{
 				"indexed": false,
-				"internalType": "string",
-				"name": "_customerID",
-				"type": "string"
+				"internalType": "bytes",
+				"name": "_firstSignature",
+				"type": "bytes"
 			},
 			{
 				"indexed": false,
-				"internalType": "string",
-				"name": "_actualInterestRate",
-				"type": "string"
-			},
-			{
-				"indexed": false,
-				"internalType": "string",
-				"name": "_settleTime",
-				"type": "string"
+				"internalType": "bytes",
+				"name": "_secondSignature",
+				"type": "bytes"
 			}
 		],
-		"name": "Settle",
+		"name": "SettleSavingsAccountTransaction",
 		"type": "event"
 	},
 	{
 		"inputs": [],
-		"name": "getAllBanks",
+		"name": "activateBank",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_customerAddress",
+				"type": "address"
+			}
+		],
+		"name": "activateCustomer",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_userAddress",
+				"type": "address"
+			},
+			{
+				"internalType": "string",
+				"name": "_userID",
+				"type": "string"
+			}
+		],
+		"name": "addUser",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_customerAddress",
+				"type": "address"
+			},
+			{
+				"internalType": "bytes32",
+				"name": "_hash",
+				"type": "bytes32"
+			},
+			{
+				"internalType": "bytes[2]",
+				"name": "_signatures",
+				"type": "bytes[2]"
+			}
+		],
+		"name": "BroadcastOpenAccountTransaction",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_customerAddress",
+				"type": "address"
+			},
+			{
+				"internalType": "bytes32",
+				"name": "_hash",
+				"type": "bytes32"
+			},
+			{
+				"internalType": "bytes[2]",
+				"name": "_signatures",
+				"type": "bytes[2]"
+			}
+		],
+		"name": "BroadcastSettleAccountTransaction",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "deactivateBank",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_customerAddress",
+				"type": "address"
+			}
+		],
+		"name": "deactivateCustomer",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "newOwner",
+				"type": "address"
+			}
+		],
+		"name": "transferOwnership",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_bankOwner",
+				"type": "address"
+			},
+			{
+				"internalType": "string",
+				"name": "_bankName",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_bankID",
+				"type": "string"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "userID",
+				"type": "string"
+			}
+		],
+		"name": "findUser",
 		"outputs": [
 			{
-				"internalType": "contract Bank[]",
+				"internalType": "bool",
 				"name": "",
-				"type": "address[]"
+				"type": "bool"
 			}
 		],
 		"stateMutability": "view",
 		"type": "function"
 	},
 	{
-		"inputs": [
+		"inputs": [],
+		"name": "getBankID",
+		"outputs": [
 			{
 				"internalType": "string",
-				"name": "_bankName",
+				"name": "",
 				"type": "string"
 			}
 		],
-		"name": "getBankAddress",
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getBankName",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getFactory",
 		"outputs": [
 			{
 				"internalType": "address",
@@ -203,109 +346,32 @@
 		"type": "function"
 	},
 	{
-		"inputs": [
-			{
-				"internalType": "string",
-				"name": "_bankName",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "_savingsAccountNumber",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "_customerID",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "_productType",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "_period",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "_interestRate",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "_savingsAmount",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "_estimatedInterestAmount",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "_settleInstruction",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "_openTime",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "_currency",
-				"type": "string"
-			}
-		],
-		"name": "invokeOpenAccount",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "string",
-				"name": "_bankName",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "_savingsAccountNumber",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "_customerID",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "_actualInterestRate",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "_settleTime",
-				"type": "string"
-			}
-		],
-		"name": "invokeSettleAccount",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
 		"inputs": [],
-		"name": "numOfBanks",
+		"name": "isActivated",
 		"outputs": [
 			{
-				"internalType": "uint256",
+				"internalType": "bool",
 				"name": "",
-				"type": "uint256"
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_userAddress",
+				"type": "address"
+			}
+		],
+		"name": "isMember",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
 			}
 		],
 		"stateMutability": "view",
@@ -327,33 +393,30 @@
 	{
 		"inputs": [
 			{
-				"internalType": "string",
-				"name": "_bankName",
-				"type": "string"
+				"internalType": "bytes32",
+				"name": "hash",
+				"type": "bytes32"
+			},
+			{
+				"internalType": "bytes[2]",
+				"name": "signature",
+				"type": "bytes[2]"
 			}
 		],
-		"name": "registerBank",
+		"name": "verifyUser",
 		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			},
 			{
 				"internalType": "address",
 				"name": "",
 				"type": "address"
 			}
 		],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "newOwner",
-				"type": "address"
-			}
-		],
-		"name": "transferOwnership",
-		"outputs": [],
-		"stateMutability": "nonpayable",
+		"stateMutability": "view",
 		"type": "function"
 	}
 ]

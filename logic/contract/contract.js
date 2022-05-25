@@ -3,6 +3,7 @@ const ethers = require("ethers")
 const { hexZeroPad } = require("ethers/lib/utils")
 const CONTRACT_ABI = require("./contractabi.json")
 // const CONTRACT_ABI = ""
+// import 'ethers/dist/shims.js';
 
 
 class BlockchainInteractor {
@@ -86,13 +87,14 @@ class BlockchainInteractor {
                 bankSignedTxn,
             ]
         ])
-
+        console.log("checkpoint 1.1")
         let result = await this.wallet.wallet.sendTransaction({
             to: profile.contractAddress,
             gasPrice: ethers.utils.hexlify(20000000000),
             gasLimit: ethers.utils.hexlify(1000000),
             data: calldata,
         }, function(error, hash) {
+            console.log("do we have any errors:", error)
             if (error != null) {
                 console.log("Error when performing transaction:", error)
                 throw error
@@ -130,16 +132,20 @@ class BlockchainInteractor {
             ]
         ])
 
+        console.log("Here we are, ready to send")
+
         let result = await this.wallet.wallet.sendTransaction({
             to: profile.contractAddress,
             gasPrice: ethers.utils.hexlify(20000000000),
             gasLimit: ethers.utils.hexlify(1000000),
             data: calldata,
         }, function(error, hash) {
+            console.log("do we have error?:", error)
             if (error != null) {
                 console.log("Error when performing transaction:", error)
                 throw error
             }
+            console.log(hash)
             return hash
         })
 
@@ -239,7 +245,11 @@ class Wallet {
     // const verifier = Verifier
     constructor (privateKey) {
         // const node = new ethers.providers.JsonRpcProvider(profile.blockchainNode)
-        const node = new ethers.providers.WebSocketProvider("wss://speedy-nodes-nyc.moralis.io/f2b19a3c16403baa4483c731/polygon/mumbai/ws")
+        // const node = new ethers.providers.InfuraProvider('maticmum', {
+        //     projectId: "7d8f19d50b954a0fa348985e6079f108",
+        //     projectSecret: "05a5c4239e914fef9b00bfecbd456a61",
+        // })
+        const node = new ethers.providers.WebSocketProvider("https://speedy-nodes-nyc.moralis.io/f2b19a3c16403baa4483c731/polygon/mumbai/archive")
         // console.log("node:", node)
         // const node = new ethers.providers.WebSocketProvider(profile.blockchainNode)
         // const node = new ethers.providers.Web3Provider(ganache.provider())

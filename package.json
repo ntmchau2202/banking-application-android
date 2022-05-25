@@ -41,7 +41,8 @@
     "react-native-screen": "^1.0.1",
     "react-native-web": "0.17.1",
     "walletlink": "^2.5.0",
-    "web3": "^1.7.3"
+    "web3": "^1.7.3",
+    "expo-clipboard": "~2.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9"

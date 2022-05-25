@@ -1,7 +1,7 @@
 const profile = {
     baseUrl: "http://localhost:9999/v1",
     moralisUrl: "https://deep-index.moralis.io/api/v2/",
-    timeOut: 10000,
+    timeOut: 1000000,
     headers: {
         'Content-type': "application/json",
     },

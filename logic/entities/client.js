@@ -148,10 +148,13 @@ class Client {
             .then(async function (response) {
                 if (response.status === 200) {
                     try {
+                        console.log("checkpoint -1")
                         savingsAccountID = response.data.details.savingsaccount_id
                         signedMsgFromBank = response.data.details.signature
                         let clientMsg = instance.createOpenTransactionMessage(txn, savingsAccountID)
+                        console.log("checkpoint 0")
                         txnHash = await instance.blockchainInteractor.openTransaction(clientMsg, signedMsgFromBank)
+                        console.log("checkpoint 1")
                         console.log("Returned txnHash:", txnHash)
                     } catch (error) {
                         throw "error creating transaction on blockchain: " + error
@@ -166,7 +169,9 @@ class Client {
                     throw error
                 }
             })
+            console.log("checkpoint 2")
             // step 3: sending back txnHash for confirmation
+            console.log("Have we got here?")
             await this.httpClient.post("/savings/confirmation", this.createMessage(command.confirm, {
                 "txn_hash": txnHash,
                 "savingsaccount_id": savingsAccountID,
@@ -345,7 +350,7 @@ class Client {
             })
         } catch (error) {
             console.log(error)
-            throw this.errorNotification("error when open account", error)
+            throw this.errorNotification("error when settle account", error)
         }
     }
 
