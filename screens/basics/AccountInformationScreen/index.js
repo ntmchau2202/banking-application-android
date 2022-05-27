@@ -9,7 +9,7 @@ import * as FileSystem from 'expo-file-system'
 import StyledInput from '../../components/StyledInput';
 import StyledButton from '../../components/StyledButton';
 import { useState } from 'react';
-import {Clipboard} from 'expo-clipboard'
+import * as Clipboard from 'expo-clipboard'
 
 export const AccountMenuScreen = () =>  {
     const navigator = useNavigation()
@@ -29,11 +29,17 @@ export const AccountMenuScreen = () =>  {
                                 //     console.warn("User already enrolled in the service")
                                     navigator.navigate('Enter new passcode')
 
+                                } else {
+                                    console.warn("User has already enrolled in the contract")
                                 }
                             }}/>
             <AccountOption name='Export private key'
-                            content={() => {
-                                navigator.navigate('Unlock private key')
+                            content={async () => {
+                                let data = await UnlockPrivateKey()
+                                console.log("outer: data:", data)
+                                navigator.navigate('Unlock private key', {
+                                    information: data
+                                })
                             }}/>
             <AccountOption name='Export passphrase'
                             content=''/>
@@ -88,11 +94,11 @@ export const EnterNewPasscodeScreen = () => {
                                         console.log('path:', path)
                                         await FileSystem.writeAsStringAsync(path, stringToWrite,{ encoding: FileSystem.EncodingType.UTF8 })
 
-                                        let ok = registerService(profile.currentCustomer.id, passcode)
+                                        let ok = await registerService(profile.currentCustomer.id, passcode)
                                         if (ok) {
-                                            Alert.prompt("Register successfully")
+                                            Alert.alert("Register successfully")
                                         } else {
-                                            Alert.prompt("An error occured when register service")
+                                            Alert.alert("An error occured when register service")
                                         }
                                     } catch (error) {
                                         Alert.alert("An unexpected error occurred")
@@ -104,33 +110,28 @@ export const EnterNewPasscodeScreen = () => {
     )
 }
 
-export const UnlockPrivateKeyScreen = () => {
-    const path = FileSystem.documentDirectory + profile.currentCustomer.id + "inf.js"
-    let customerInformation = FileSystem.readAsStringAsync(path,{ encoding: FileSystem.EncodingType.UTF8 } )
-                            .then(function(result) {
-                                return result
-                            })
-    console.log("stringToDecrypt:", customerInformation)
-    let obj = JSON.parse(customerInformation)
-    let pwd = obj.p 
-
+export const UnlockPrivateKeyScreen = (navigation) => {
+    let information = navigation.route.params.information 
     const [passcode, setPasscode] = useState('')
     const navigator = useNavigation()
     return (
         <View>
-            <StyledInput placeholer='Enter your new password here'
+            <Text>
+                Enter your unlock passcode here...
+            </Text>
+            <StyledInput placeholer='Enter your password to unlock private key...'
                             value={passcode}
                             setValue={setPasscode}/>
-            <StyledButton type='primary'
-                            title='Get private key'
-                            onPress={async ()=>{
+            <StyledButton title='Unlock private key'
+                            type='primary'
+                            onPress={async ()=> {
                                 if (passcode.length === 0) {
-                                    Alert.alert("Please enter password")
+                                    console.warn("Please enter your passcode")
                                 } else {
-                                    if (passcode === pwd) {
+                                    if (passcode === information.p) {
                                         const privPath = FileSystem.documentDirectory + 'sample.json'
                                         let stringToDecrypt = await FileSystem.readAsStringAsync(privPath, { encoding: FileSystem.EncodingType.UTF8 } )
-                                        console.log("stringToDecrypt:", stringToDecrypt)
+                                        console.log("in stringToDecrypt:", stringToDecrypt)
                                         let obj = JSON.parse(stringToDecrypt)
                                         const decrypted = CryptoES.AES.decrypt(obj.key, passcode).toString(CryptoES.enc.Utf8)
                                         navigator.navigate('Private key', {
@@ -141,8 +142,58 @@ export const UnlockPrivateKeyScreen = () => {
                                     }   
                                 }
                             }}/>
+
         </View>
     )
+}
+
+const UnlockPrivateKey = async () => {
+    console.log("Got here")
+    const path = FileSystem.documentDirectory + profile.currentCustomer.id + "inf.js"
+    const data = await FileSystem.readAsStringAsync(path,{ encoding: FileSystem.EncodingType.UTF8 } )
+                            // .then(function(result) {
+                            //     let obj = JSON.parse(result)
+                            //     return obj
+                            // }).catch(function(error) {
+                            //     console.warn("An error occured:", error)
+                            // })
+    let obj = JSON.parse(data)
+    console.log("data:", obj)
+    return obj
+    // const navigator = useNavigation()
+    // navigator.navigate('Unlock private key', {
+    //     information: data
+    // })
+    // console.log(customerInformation)
+    // const [passcode, setPasscode] = useState('')
+    // const navigator = useNavigation()
+    // return (
+    //     <View>
+    //         {/* <StyledInput placeholer='Enter your new password here'
+    //                         value={passcode}
+    //                         setValue={setPasscode}/> */}
+    //         {/* <StyledButton type='primary'
+    //                         title='Get private key'
+    //                         onPress={async ()=>{
+    //                             if (passcode.length === 0) {
+    //                                 Alert.alert("Please enter password")
+    //                             } else {
+    //                                 if (passcode === pwd) {
+    //                                     const privPath = FileSystem.documentDirectory + 'sample.json'
+    //                                     let stringToDecrypt = await FileSystem.readAsStringAsync(privPath, { encoding: FileSystem.EncodingType.UTF8 } )
+    //                                     console.log("in stringToDecrypt:", stringToDecrypt)
+    //                                     let obj = JSON.parse(stringToDecrypt)
+    //                                     const decrypted = CryptoES.AES.decrypt(obj.key, passcode).toString(CryptoES.enc.Utf8)
+    //                                     navigator.navigate('Private key', {
+    //                                         p: decrypted
+    //                                     })
+    //                                 } else {
+    //                                     Alert.alert("Invalid passcode")
+    //                                 }   
+    //                             }
+    //                         }}/> */}
+    //     </View>
+    // )
 }
 
 export const PrivateKeyScreen = (navigation) => {
@@ -158,6 +209,8 @@ export const PrivateKeyScreen = (navigation) => {
             <StyledButton type='secondary'
                             title='Copy to clipboard'
                             onPress={() => {    
+                                // Clipboard.setString(privateKey)
+                                // console.warn("Copied to clipboard!")
                                 Clipboard.setString(privateKey)
                                 console.warn("Copied to clipboard!")
                             }} />
@@ -228,9 +281,9 @@ const registerService = async (customerID, password) => {
     let obj = JSON.parse(stringToDecrypt)
     const decrypted = CryptoES.AES.decrypt(obj.key, password).toString(CryptoES.enc.Utf8)
     console.log("decrypted:", decrypted)
-    return
+    // return
     try {
-        result = profile.connector.registerBlockchainReceiptService(customerID, customerAddress)
+        result = await profile.connector.registerBlockchainReceiptService(customerID, customerAddress)
                     .then(function(response){
                         console.log(response)
                         if (response.status == "success") {
