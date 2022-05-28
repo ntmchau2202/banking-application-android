@@ -66,7 +66,7 @@ const ConfirmSettleScreen = (navigation) => {
             </View>
             <StyledButton type='primary'
                             title='Confirm'
-                            onPress={() => {
+                            onPress={async () => {
                                 console.warn("going to settle account")
                                 // const client = new Client()
                                 // profile.connector = client
@@ -80,7 +80,7 @@ const ConfirmSettleScreen = (navigation) => {
 
                                 let connector = new Client()
 
-                                connector.requestSettleAccount(message).then(function(response){
+                                await connector.requestSettleAccount(message).then(function(response){
                                     if (typeof(response) === 'object') {
                                         if ('error' in response) {
                                             console.warn("An error occured when creating new account")

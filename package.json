@@ -12,6 +12,7 @@
   "dependencies": {
     "@react-navigation/native": "^6.0.10",
     "@react-navigation/native-stack": "^6.6.1",
+    "await-transaction-mined": "^1.0.12",
     "axios": "^0.27.2",
     "base-64": "^1.0.0",
     "crypto-es": "^1.2.7",

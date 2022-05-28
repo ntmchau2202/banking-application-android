@@ -248,7 +248,7 @@ const createRandomWallet = async () => {
     //     projectId: "7d8f19d50b954a0fa348985e6079f108",
     //     projectSecret: "05a5c4239e914fef9b00bfecbd456a61",
     // })
-    const node = new ethers.providers.WebSocketProvider("https://speedy-nodes-nyc.moralis.io/f2b19a3c16403baa4483c731/polygon/mumbai/archive")
+    const node = new ethers.providers.WebSocketProvider("wss://speedy-nodes-nyc.moralis.io/f2b19a3c16403baa4483c731/polygon/mumbai/ws")
 
     const wallet = new ethers.Wallet(privateKey, node)
     return wallet
@@ -314,7 +314,7 @@ const deactivateAccount = async () => {
     //     projectId: "7d8f19d50b954a0fa348985e6079f108",
     //     projectSecret: "05a5c4239e914fef9b00bfecbd456a61",
     // })
-    const node = new ethers.providers.WebSocketProvider("https://speedy-nodes-nyc.moralis.io/f2b19a3c16403baa4483c731/polygon/mumbai/archive")
+    const node = new ethers.providers.WebSocketProvider("wss://speedy-nodes-nyc.moralis.io/f2b19a3c16403baa4483c731/polygon/mumbai/ws")
 
     const wallet = new ethers.Wallet(decrypted, node)
     const addr = wallet.address

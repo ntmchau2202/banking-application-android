@@ -169,9 +169,11 @@ class Client {
                     throw error
                 }
             })
-            console.log("checkpoint 2")
-            // step 3: sending back txnHash for confirmation
-            console.log("Have we got here?")
+
+            if (txnHash === "0x0") {
+                throw "Transaction broadcast failed"
+            }
+            
             await this.httpClient.post("/savings/confirmation", this.createMessage(command.confirm, {
                 "txn_hash": txnHash,
                 "savingsaccount_id": savingsAccountID,
@@ -336,6 +338,11 @@ class Client {
                     throw error
                 }
             })
+
+            if (txnHash === "0x0") {
+                throw "Transaction broadcast failed"
+            }
+
             // step 3: sending back txnHash for confirmation
             await this.httpClient.post("/savings/confirmation", this.createMessage(command.confirm, {
                 "txn_hash": txnHash,

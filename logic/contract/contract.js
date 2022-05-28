@@ -10,9 +10,14 @@ class BlockchainInteractor {
     constructor(privateKey) {
         const wallet = new Wallet(privateKey)
         const contractABI = new ethers.utils.Interface(CONTRACT_ABI)
+        const contract = new ethers.Contract(profile.contractAddress, CONTRACT_ABI, wallet.provider)
         this.wallet = wallet
-        // this.verifier = new Verifier(wallet)
         this.abi = contractABI
+        this.contract = contract
+    }
+
+    getNode() {
+        return this.wallet.node
     }
 
     encodeTopic (topic) {
@@ -79,32 +84,91 @@ class BlockchainInteractor {
         console.log("signature:", signature)
         const hashedTxn = this.wallet.verifier.hashMessage(txnString)
         console.log("hashedTx:", hashedTxn)
-        let calldata = this.abi.encodeFunctionData("BroadcastOpenAccountTransaction", [
-            this.wallet.address,
+        const fetchedGasPrice = this.wallet.node.getGasPrice()
+        const estimatedGas = 3000000
+        // let calldata = this.abi.encodeFunctionData("BroadcastOpenAccountTransaction", [
+        //     this.wallet.address,
+        //     hashedTxn,
+        //     [
+        //         signature,
+        //         bankSignedTxn,
+        //     ]
+        // ])
+
+        console.log("checkpoint 1.1")
+        let pending = await this.contract.BroadcastOpenAccountTransaction(
             hashedTxn,
             [
                 signature,
                 bankSignedTxn,
-            ]
-        ])
-        console.log("checkpoint 1.1")
-        let result = await this.wallet.wallet.sendTransaction({
-            to: profile.contractAddress,
-            gasPrice: ethers.utils.hexlify(20000000000),
-            gasLimit: ethers.utils.hexlify(1000000),
-            data: calldata,
-        }, function(error, hash) {
-            console.log("do we have any errors:", error)
-            if (error != null) {
-                console.log("Error when performing transaction:", error)
-                throw error
+            ], {
+                gasPrice: fetchedGasPrice,
+                gasLimit: ethers.utils.hexlify(estimatedGas)
             }
-            return hash
-        })
+        )
 
-        console.log("txnHash:", result.hash)
-        // step 4: decode to get txn hash here for return
-        return result.hash
+        console.log("Transaction hash:", pending.hash)
+
+        let receipt = null 
+        while (receipt == null) {
+            receipt = await this.wallet.node.getTransactionReceipt(pending.hash)
+        }
+
+        if (receipt.status == 1) {
+            return receipt.transactionHash
+        } else {
+            return "0x0"
+        }
+        
+
+        // console.log("wallet:", this.wallet.wallet.address)
+        // let result = this.wallet.wallet.sendTransaction({
+        //     to: profile.contractAddress,
+        //     gasPrice: this.wallet.node.getGasPrice(),
+        //     gasLimit: ethers.utils.hexlify(3000000),
+        //     data: calldata,
+        // }, function(error, hash) {
+        //     console.log("do we have any errors:", error)
+        //     if (error != null) {
+        //         console.log("Error when performing transaction:", error)
+        //         throw error
+        //     }
+        //     return hash
+        // })
+        // console.log("result:", (await result).wait())
+        // console.log("txn Hash:", result.hash)
+        // return result.hash
+
+        // // let result = await this.wallet.wallet.sendTransaction({
+        // //     to: profile.contractAddress,
+        // //     gasPrice: ethers.utils.hexlify(20000000000),
+        // //     gasLimit: ethers.utils.hexlify(1000000),
+        // //     data: calldata,
+        // // }).wait()
+        
+        // // let contractABI = new ethers.utils.Interface(CONTRACT_ABI)
+        // // let contract = new ethers.Contract(profile.contractAddress, contractABI, this.wallet.provider)
+        // // console.log("contract:", contract)
+        // // let pending = await contract.BroadcastOpenAccountTransaction(
+        // //     this.wallet.address,
+        // //     hashedTxn,
+        // //     [
+        // //         signature,
+        // //         bankSignedTxn,
+        // //     ], 
+        // //     {
+        // //         gasLimit: ethers.utils.hexlify(1000000),
+        // //         gasPrice: ethers.utils.hexlify(20000000000),
+        // //     }
+        // // )
+        // // console.log(pending)
+        // // let receipt = await pending.wait()
+        // // console.log(receipt.status)
+        // // console.log("txnHash:", pending.hash)
+        // // // step 4: decode to get txn hash here for return
+        // // return pending.hash
+
+
     }
 
     // redefine function on smart contract side: Bank side
@@ -123,35 +187,71 @@ class BlockchainInteractor {
         console.log("signature:", signature)
         const hashedTxn = this.wallet.verifier.hashMessage(txnString)
         console.log("hashedTx:", hashedTxn)
-        let calldata = this.abi.encodeFunctionData("BroadcastSettleAccountTransaction", [
-            this.wallet.address,
+        // let calldata = this.abi.encodeFunctionData("BroadcastSettleAccountTransaction", [
+        //     this.wallet.address,
+        //     hashedTxn,
+        //     [
+        //         signature,
+        //         bankSignedTxn,
+        //     ]
+        // ])
+
+        // console.log("Here we are, ready to send")
+
+        // let result = await this.wallet.wallet.sendTransaction({
+        //     to: profile.contractAddress,
+        //     gasPrice: ethers.utils.hexlify(20000000000),
+        //     gasLimit: ethers.utils.hexlify(1000000),
+        //     data: calldata,
+        // }, function(error, hash) {
+        //     console.log("do we have error?:", error)
+        //     if (error != null) {
+        //         console.log("Error when performing transaction:", error)
+        //         throw error
+        //     }
+        //     console.log(hash)
+        //     return hash
+        // })
+
+        // console.log("txnHash:", result.hash)
+        // // step 4: decode to get txn hash here for return
+        // return result.hash
+
+        const fetchedGasPrice = this.wallet.node.getGasPrice()
+        const estimatedGas = 3000000
+        // let calldata = this.abi.encodeFunctionData("BroadcastOpenAccountTransaction", [
+        //     this.wallet.address,
+        //     hashedTxn,
+        //     [
+        //         signature,
+        //         bankSignedTxn,
+        //     ]
+        // ])
+
+        console.log("checkpoint 1.1")
+        let pending = await this.contract.BroadcastSettleAccountTransaction(
             hashedTxn,
             [
                 signature,
                 bankSignedTxn,
-            ]
-        ])
-
-        console.log("Here we are, ready to send")
-
-        let result = await this.wallet.wallet.sendTransaction({
-            to: profile.contractAddress,
-            gasPrice: ethers.utils.hexlify(20000000000),
-            gasLimit: ethers.utils.hexlify(1000000),
-            data: calldata,
-        }, function(error, hash) {
-            console.log("do we have error?:", error)
-            if (error != null) {
-                console.log("Error when performing transaction:", error)
-                throw error
+            ], {
+                gasPrice: fetchedGasPrice,
+                gasLimit: ethers.utils.hexlify(estimatedGas)
             }
-            console.log(hash)
-            return hash
-        })
+        )
 
-        console.log("txnHash:", result.hash)
-        // step 4: decode to get txn hash here for return
-        return result.hash
+        console.log("Transaction hash:", pending.hash)
+
+        let receipt = null 
+        while (receipt == null) {
+            receipt = await this.wallet.node.getTransactionReceipt(pending.hash)
+        }
+
+        if (receipt.status == 1) {
+            return receipt.transactionHash
+        } else {
+            return "0x0"
+        }
     }
 
     fetchOpenTransactionsFromChain() {
@@ -249,7 +349,7 @@ class Wallet {
         //     projectId: "7d8f19d50b954a0fa348985e6079f108",
         //     projectSecret: "05a5c4239e914fef9b00bfecbd456a61",
         // })
-        const node = new ethers.providers.WebSocketProvider("https://speedy-nodes-nyc.moralis.io/f2b19a3c16403baa4483c731/polygon/mumbai/archive")
+        const node = new ethers.providers.WebSocketProvider("wss://speedy-nodes-nyc.moralis.io/f2b19a3c16403baa4483c731/polygon/mumbai/ws")
         // console.log("node:", node)
         // const node = new ethers.providers.WebSocketProvider(profile.blockchainNode)
         // const node = new ethers.providers.Web3Provider(ganache.provider())
@@ -257,7 +357,6 @@ class Wallet {
         const wallet = new ethers.Wallet(privateKey, node)
         const provider = wallet.connect(node)
         const verifier = new Verifier(wallet)
-
         this.node = node
         this.wallet = wallet 
         this.provider = provider
