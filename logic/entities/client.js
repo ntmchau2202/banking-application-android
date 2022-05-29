@@ -10,9 +10,13 @@ const status = require("../constant/env").status
 const BlockchainInteractor = require("../contract/contract").BlockchainInteractor
 const Render = require("./render").Render
 // const fs = require('fs')
-
+const fetch = require('node-fetch')
 const axios = require('axios').default
 const ethers = require('ethers')
+const { default: CryptoES } = require("crypto-es")
+const { RSA } = require("react-native-rsa-native")
+import * as FileSystem from 'expo-file-system'
+
 
 class Client {
     // const customer 
@@ -137,25 +141,56 @@ class Client {
         }
     }
 
+    async fetchIPFSDoc(ipfsHash) {
+        const url = profile.ipfsPublicNode + ipfsHash
+        const response = await fetch(url);
+        return await response.json();
+    }
+
+    getCustomerPrivateKey() {
+        // get passcode
+        const passcodePath = FileSystem.documentDirectory + profile.currentCustomer.id + "inf.js"
+        let passcodeString = await FileSystem.readAsStringAsync(passcodePath, {encoding: FileSystem.EncodingType.UTF8})
+        let passcodeObject = JSON.parse(passcodeString)
+        let passcode = passcodeObject.p
+
+        const privPath = FileSystem.documentDirectory + 'sample.json'
+        let stringToDecrypt = await FileSystem.readAsStringAsync(privPath, { encoding: FileSystem.EncodingType.UTF8 } )
+        let decryptedObject = JSON.parse(stringToDecrypt)
+        let encryptedRSAPrivKey = decryptedObject.decrypting
+        let decryptedRSAPrivKey = CryptoES.AES.decrypt(encryptedRSAPrivKey, passcode)
+        return decryptedRSAPrivKey
+    }
+
     async requestOpenAccount(txn) {
         const instance = this
         var savingsAccountID = ""
         var signedMsgFromBank = ""
         var txnHash = ""
+        let clientIPFSReceiptHash = ""
         try {
             // step 1: connect to bank server
             await this.httpClient.post("/savings/create", this.createMessage(command.createAccount, txn))
             .then(async function (response) {
                 if (response.status === 200) {
                     try {
-                        console.log("checkpoint -1")
                         savingsAccountID = response.data.details.savingsaccount_id
                         signedMsgFromBank = response.data.details.signature
+                        let ipfsHash = response.data.details.receipt
+                        // TODO: download file from ipfs to check message
+                        let content = await instance.fetchIPFSDoc(ipfsHash)
+                        let fetchedObject = JSON.parse(content)
+                        let encryptedReceipt = fetchedObject.receipt 
+                        // decrypt = customer private key
+                        let customerRSAPrivateKey = getCustomerPrivateKey()
+                        let decryptedReceipt = RSA.decrypt(encryptedReceipt, customerRSAPrivateKey).toString()
+                        let decryptedObject = JSON.parse(decryptedReceipt)
                         let clientMsg = instance.createOpenTransactionMessage(txn, savingsAccountID)
-                        console.log("checkpoint 0")
-                        txnHash = await instance.blockchainInteractor.openTransaction(clientMsg, signedMsgFromBank)
-                        console.log("checkpoint 1")
-                        console.log("Returned txnHash:", txnHash)
+                        if (decryptedObject == clientMsg) {
+                            [txnHash, clientIPFSReceiptHash] = await instance.blockchainInteractor.openTransaction(clientMsg, signedMsgFromBank)
+                        } else {
+                            throw 'creation information mismatch'
+                        }
                     } catch (error) {
                         throw "error creating transaction on blockchain: " + error
                     }
@@ -173,11 +208,12 @@ class Client {
             if (txnHash === "0x0") {
                 throw "Transaction broadcast failed"
             }
-            
+
             await this.httpClient.post("/savings/confirmation", this.createMessage(command.confirm, {
                 "txn_hash": txnHash,
                 "savingsaccount_id": savingsAccountID,
                 "action": command.createAccount,
+                "receipt": clientIPFSReceiptHash,
             })).then(function (response) {
                 if (response.status != 204) {
                     throw "error sending back confirmation hash: " + response.data
@@ -315,6 +351,7 @@ class Client {
         var savingsAccountID = txn.savingsaccount_id
         var signedMsgFromBank = ""
         var txnHash = ""
+        var clientReceiptIPFSHash = ""
         try {
             // step 1: connect to bank server
             await this.httpClient.post("/savings/settle", this.createMessage(command.settleAccount, txn))
@@ -322,9 +359,20 @@ class Client {
                 if (response.status === 200) {
                     try {
                         signedMsgFromBank = response.data.details.signature
+                        ipfsHash = response.data.details.receipt
                         let clientMsg = instance.createSettleTransactionMessage(txn)
-                        txnHash = await instance.blockchainInteractor.settleTransaction(clientMsg, signedMsgFromBank)
-                        console.log("Returned txnHash:", txnHash)
+                        let content = await instance.fetchIPFSDoc(ipfsHash)
+                        let fetchedObject = JSON.parse(content)
+                        let encryptedReceipt = fetchedObject.receipt 
+                        let customerRSAPrivateKey = getCustomerPrivateKey()
+                        let decryptedReceipt = RSA.decrypt(encryptedReceipt, customerRSAPrivateKey).toString()
+                        let decryptedObject = JSON.parse(decryptedReceipt)
+                        if (decryptedObject == clientMsg) {
+                            [txnHash, clientReceiptIPFSHash] = await instance.blockchainInteractor.settleTransaction(clientMsg, signedMsgFromBank)
+                            console.log("Returned txnHash:", txnHash)
+                        } else {
+                            throw 'settle information mismatch'
+                        }
                     } catch (error) {
                         throw "error creating transaction on blockchain: " + error
                     }
@@ -348,6 +396,7 @@ class Client {
                 "txn_hash": txnHash,
                 "savingsaccount_id": savingsAccountID,
                 "action": command.settleAccount,
+                "receipt": clientReceiptIPFSHash,
             })).then(function (response) {
                 if (response.status != 204) {
                     throw "error sending back confirmation hash: " + response.data
@@ -403,12 +452,13 @@ class Client {
         }
     }
 
-    async registerBlockchainReceiptService(customerID, customerAddress) {
+    async registerBlockchainReceiptService(customerID, customerAddress, publicKey) {
         let result = null
         try {
             result = await this.httpClient.post("/register/blockchainReceiptService", this.createMessage(command.registerService, {
                 "customer_id": customerID,
                 "customer_address": customerAddress,
+                "public_key": publicKey,
             })).then(function(response) {
                 return response.data
             }).catch(function(error){

@@ -304,11 +304,6 @@ export const ConfirmCreateNewSavingsScreen = (navigation) => {
                                     }
                                 })
                             }}/>
-            {/* <StyledButton type='secondary'
-                            title='Go back'
-                            onPress={() => {
-                                navigator.navigate('New savings account')
-                            }}/> */}
         </View>
     )
 }

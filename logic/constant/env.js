@@ -27,6 +27,8 @@ const profile = {
     currentCustomer: null,
     connector: null,
     currentWorkingSavingsAccount: null,
+    ipfsPublicNode: "https://gateway.moralisipfs.com/ipfs/",
+    bankPublicKey: "",
 }
 
 const command = {

@@ -2,8 +2,7 @@ const profile = require("../constant/env").profile
 const ethers = require("ethers")
 const { hexZeroPad } = require("ethers/lib/utils")
 const CONTRACT_ABI = require("./contractabi.json")
-// const CONTRACT_ABI = ""
-// import 'ethers/dist/shims.js';
+import * as FileSystem from 'expo-file-system'
 
 
 class BlockchainInteractor {
@@ -68,12 +67,55 @@ class BlockchainInteractor {
         return result;
     }
 
-    // redefine function on smart contract side: Bank side
-    // function openTransaction(
-    //     bytes32 message,
-    //     bytes[2] signatures,
-    // )
-    async openTransaction (txn, bankSignedTxn) {
+    getBankPublicKey() {
+        const path = FileSystem.documentDirectory + 'sample.json'
+        let stringToDecrypt = await FileSystem.readAsStringAsync(privPath, { encoding: FileSystem.EncodingType.UTF8 } )
+        let obj = JSON.parse(stringToDecrypt)
+        let bankPublicKey = obj.bank_public_key
+        return bankPublicKey
+    }
+    
+    encryptReceiptDetails(receiptDetails) {
+        const receiptString = JSON.stringify(receiptDetails)
+        const bankPublicKey = this.getBankPublicKey()
+        const receiptEncrypted = RSA.encrypt(receiptString, bankPublicKey)
+        return receiptEncrypted
+    }
+
+    broadcastToIPFS(type, encryptedReceipt, signature) {
+        let currentTime = new Date().toUTCString()
+        let object = {
+            "time_created": currentTime,
+            "type": "create",
+            "customer_signature": signature,
+            "receipt": encryptedReceipt
+        }
+        let jsonString = JSON.stringify(object)
+    
+        // let contentBuffer = Buffer.from(jsonString)
+        let base64String = btoa(jsonString)
+    
+        // connect to moralis node
+        let url = config.ipfsNodeLink
+        let applicationID = config.ipfsAppID
+        let masterKey = config.ipfsMasterKey
+        let prefix = ""
+        if (type == "settle") {
+            prefix = "settle_"
+        } else if (type == "create") {
+            prefix = "create_"
+        }
+        let fileName = prefix + currentTime + ".json"
+        await Moralis.start({serverUrl: url,
+                            appId: applicationID,
+                            masterKey: masterKey})
+        const moralisFile = new Moralis.File(fileName, {base64: base64String}, 'application/json')
+        const result = await moralisFile.saveIPFS({useMasterKey: true})
+    
+        console.log(result._hash)
+    }
+
+    async openTransaction(txn, bankSignedTxn) {
         // verify bankSignedTxn
         if (!this.wallet.verifier.verifyMessage(txn, bankSignedTxn, profile.bankOwner)) {
             throw 'WARNING: invalid bank signature on message! Please contact the bank for more information!'
@@ -82,18 +124,13 @@ class BlockchainInteractor {
         let txnString = JSON.stringify(txn)
         var signature = await this.wallet.verifier.signMessage(txnString)
         console.log("signature:", signature)
+        // if things r ok, create a receipt and upload it to ipfs
+        let encryptedReceipt = this.encryptReceiptDetails(txn)
+        let ipfsHash = this.broadcastToIPFS("open", encryptedReceipt, signature)
         const hashedTxn = this.wallet.verifier.hashMessage(txnString)
         console.log("hashedTx:", hashedTxn)
         const fetchedGasPrice = this.wallet.node.getGasPrice()
         const estimatedGas = 3000000
-        // let calldata = this.abi.encodeFunctionData("BroadcastOpenAccountTransaction", [
-        //     this.wallet.address,
-        //     hashedTxn,
-        //     [
-        //         signature,
-        //         bankSignedTxn,
-        //     ]
-        // ])
 
         console.log("checkpoint 1.1")
         let pending = await this.contract.BroadcastOpenAccountTransaction(
@@ -101,7 +138,9 @@ class BlockchainInteractor {
             [
                 signature,
                 bankSignedTxn,
-            ], {
+            ],
+            ipfsHash,
+            {
                 gasPrice: fetchedGasPrice,
                 gasLimit: ethers.utils.hexlify(estimatedGas)
             }
@@ -115,67 +154,12 @@ class BlockchainInteractor {
         }
 
         if (receipt.status == 1) {
-            return receipt.transactionHash
+            return [receipt.transactionHash, ipfsHash]
         } else {
-            return "0x0"
+            return ["0x0", ""]
         }
-        
-
-        // console.log("wallet:", this.wallet.wallet.address)
-        // let result = this.wallet.wallet.sendTransaction({
-        //     to: profile.contractAddress,
-        //     gasPrice: this.wallet.node.getGasPrice(),
-        //     gasLimit: ethers.utils.hexlify(3000000),
-        //     data: calldata,
-        // }, function(error, hash) {
-        //     console.log("do we have any errors:", error)
-        //     if (error != null) {
-        //         console.log("Error when performing transaction:", error)
-        //         throw error
-        //     }
-        //     return hash
-        // })
-        // console.log("result:", (await result).wait())
-        // console.log("txn Hash:", result.hash)
-        // return result.hash
-
-        // // let result = await this.wallet.wallet.sendTransaction({
-        // //     to: profile.contractAddress,
-        // //     gasPrice: ethers.utils.hexlify(20000000000),
-        // //     gasLimit: ethers.utils.hexlify(1000000),
-        // //     data: calldata,
-        // // }).wait()
-        
-        // // let contractABI = new ethers.utils.Interface(CONTRACT_ABI)
-        // // let contract = new ethers.Contract(profile.contractAddress, contractABI, this.wallet.provider)
-        // // console.log("contract:", contract)
-        // // let pending = await contract.BroadcastOpenAccountTransaction(
-        // //     this.wallet.address,
-        // //     hashedTxn,
-        // //     [
-        // //         signature,
-        // //         bankSignedTxn,
-        // //     ], 
-        // //     {
-        // //         gasLimit: ethers.utils.hexlify(1000000),
-        // //         gasPrice: ethers.utils.hexlify(20000000000),
-        // //     }
-        // // )
-        // // console.log(pending)
-        // // let receipt = await pending.wait()
-        // // console.log(receipt.status)
-        // // console.log("txnHash:", pending.hash)
-        // // // step 4: decode to get txn hash here for return
-        // // return pending.hash
-
-
     }
 
-    // redefine function on smart contract side: Bank side
-    // function settleTransaction(
-    //     bytes32 message,
-    //     bytes[2] signatures,
-    // )
     async settleTransaction (txn, bankSignedTxn)  {
         // verify bankSignedTxn
         if (!this.wallet.verifier.verifyMessage(txn, bankSignedTxn, profile.bankOwner)) {
@@ -185,56 +169,24 @@ class BlockchainInteractor {
         let txnString = JSON.stringify(txn)
         var signature = await this.wallet.verifier.signMessage(txnString)
         console.log("signature:", signature)
+
+        let encryptedReceipt = this.encryptReceiptDetails(txn)
+        let ipfsHash = this.broadcastToIPFS("settle", encryptedReceipt, signature)
+
         const hashedTxn = this.wallet.verifier.hashMessage(txnString)
         console.log("hashedTx:", hashedTxn)
-        // let calldata = this.abi.encodeFunctionData("BroadcastSettleAccountTransaction", [
-        //     this.wallet.address,
-        //     hashedTxn,
-        //     [
-        //         signature,
-        //         bankSignedTxn,
-        //     ]
-        // ])
-
-        // console.log("Here we are, ready to send")
-
-        // let result = await this.wallet.wallet.sendTransaction({
-        //     to: profile.contractAddress,
-        //     gasPrice: ethers.utils.hexlify(20000000000),
-        //     gasLimit: ethers.utils.hexlify(1000000),
-        //     data: calldata,
-        // }, function(error, hash) {
-        //     console.log("do we have error?:", error)
-        //     if (error != null) {
-        //         console.log("Error when performing transaction:", error)
-        //         throw error
-        //     }
-        //     console.log(hash)
-        //     return hash
-        // })
-
-        // console.log("txnHash:", result.hash)
-        // // step 4: decode to get txn hash here for return
-        // return result.hash
 
         const fetchedGasPrice = this.wallet.node.getGasPrice()
         const estimatedGas = 3000000
-        // let calldata = this.abi.encodeFunctionData("BroadcastOpenAccountTransaction", [
-        //     this.wallet.address,
-        //     hashedTxn,
-        //     [
-        //         signature,
-        //         bankSignedTxn,
-        //     ]
-        // ])
 
-        console.log("checkpoint 1.1")
         let pending = await this.contract.BroadcastSettleAccountTransaction(
             hashedTxn,
             [
                 signature,
                 bankSignedTxn,
-            ], {
+            ], 
+            ipfsHash, 
+            {
                 gasPrice: fetchedGasPrice,
                 gasLimit: ethers.utils.hexlify(estimatedGas)
             }
@@ -248,9 +200,9 @@ class BlockchainInteractor {
         }
 
         if (receipt.status == 1) {
-            return receipt.transactionHash
+            return [receipt.transactionHash, ipfsHash]
         } else {
-            return "0x0"
+            return ["0x0", ""]
         }
     }
 

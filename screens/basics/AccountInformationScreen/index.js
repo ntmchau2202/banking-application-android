@@ -10,6 +10,7 @@ import StyledInput from '../../components/StyledInput';
 import StyledButton from '../../components/StyledButton';
 import { useState } from 'react';
 import * as Clipboard from 'expo-clipboard'
+import { RSA } from 'react-native-rsa-native';
 
 export const AccountMenuScreen = () =>  {
     const navigator = useNavigation()
@@ -260,33 +261,64 @@ const registerService = async (customerID, password) => {
     // create a new wallet 
     const newWallet = await createRandomWallet()
     let customerAddress = newWallet.address
-    let customerPrivateKey = newWallet.privateKey
+    let customerPrivateKeyForSigning = newWallet.privateKey
     console.log("customerAddress:", customerAddress)
     console.log("customerPrivateKey:", customerPrivateKey)
     // todo: save private key here
-    const encrypted = CryptoES.AES.encrypt(customerPrivateKey, password).toString()
+    // this is the private key for signing documents
+    const encrypted = CryptoES.AES.encrypt(customerPrivateKeyForSigning, password).toString()
     console.log("encrypted:", encrypted)
     // try to save this to a file
-    let objToWrite = {
-        "key": encrypted,
-    }
+    // we also need a private key for decrypting message from the server
+    let pubKeyForEncrypting = null 
+    let privKeyForDecrypting = null
+    RSA.generateKeys(4096).then(
+        function(keys) {
+            if (err != null) {
+                throw err
+            }
+            pubKeyForEncrypting = keys.public
+            privKeyForDecrypting = keys.private
+            console.log("pair of pub/priv")
+            console.log("=========\n public key", publicKey)
+            console.log("=========\n private key", privateKey)
+        }
+    )
+    
+    let encryptedPrivKeyForDecrypting = CryptoES.AES.encrypt(privKeyForDecrypting, password).toString()
 
-    let stringToWrite = JSON.stringify(objToWrite)
+    // let objToWrite = {
+    //     "key": encrypted,
+    //     "decrypting": encryptedPrivKeyForDecrypting
+    // }
 
-    const path = FileSystem.documentDirectory + 'sample.json'
-    console.log('path:', path)
-    await FileSystem.writeAsStringAsync(path, stringToWrite,{ encoding: FileSystem.EncodingType.UTF8 })
-    let stringToDecrypt = await FileSystem.readAsStringAsync(path,{ encoding: FileSystem.EncodingType.UTF8 } )
-    console.log("stringToDecrypt:", stringToDecrypt)
-    let obj = JSON.parse(stringToDecrypt)
-    const decrypted = CryptoES.AES.decrypt(obj.key, password).toString(CryptoES.enc.Utf8)
-    console.log("decrypted:", decrypted)
+    // let stringToWrite = JSON.stringify(objToWrite)
+
+    // const path = FileSystem.documentDirectory + 'sample.json'
+    // console.log('path:', path)
+    // await FileSystem.writeAsStringAsync(path, stringToWrite,{ encoding: FileSystem.EncodingType.UTF8 })
+    // let stringToDecrypt = await FileSystem.readAsStringAsync(path,{ encoding: FileSystem.EncodingType.UTF8 } )
+    // console.log("stringToDecrypt:", stringToDecrypt)
+    // let obj = JSON.parse(stringToDecrypt)
+    // const decrypted = CryptoES.AES.decrypt(obj.key, password).toString(CryptoES.enc.Utf8)
+    // console.log("decrypted:", decrypted)
     // return
     try {
-        result = await profile.connector.registerBlockchainReceiptService(customerID, customerAddress)
+        result = await profile.connector.registerBlockchainReceiptService(customerID, customerAddress, pubKeyForEncrypting)
                     .then(function(response){
                         console.log(response)
                         if (response.status == "success") {
+                            let objToWrite = {
+                                "key": encrypted,
+                                "decrypting": encryptedPrivKeyForDecrypting,
+                                "bank_public_key": response.body.details.bank_public_key
+                            }
+                        
+                            let stringToWrite = JSON.stringify(objToWrite)
+                        
+                            const path = FileSystem.documentDirectory + 'sample.json'
+                            console.log('path:', path)
+                            await FileSystem.writeAsStringAsync(path, stringToWrite,{ encoding: FileSystem.EncodingType.UTF8 })
                             return true
                         } else {
                             return false
