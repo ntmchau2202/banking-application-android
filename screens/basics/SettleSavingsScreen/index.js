@@ -11,6 +11,7 @@ const Client = require("../../../logic/entities/client").Client
 const profile = require("../../../logic/constant/env").profile
 
 function calculateActualInterestAmount(savingsAmount, interestRate, openTimeString) {
+    console.log(savingsAmount, interestRate, openTimeString)
     let currentTime = new Date()
     let openTime = new Date(openTimeString)
     const diffTime = Math.abs(currentTime - openTime);
@@ -23,20 +24,23 @@ function calculateActualInterestAmount(savingsAmount, interestRate, openTimeStri
 
 const ConfirmSettleScreen = (navigation) => {
     let actualInterestAmount = 0
-    if (!'actualInterestAmount' in navigation.route.params || navigation.route.params.actualInterestAmount === 0) {
+    console.log("information:", navigation.route.params)
+    if (!'actualInterestAmount' in navigation.route.params || navigation.route.params.actualInterestAmount === 0 || navigation.route.params.actualInterestAmount == null) {
+        console.log("going to calculate stuffs")
         actualInterestAmount = calculateActualInterestAmount(navigation.route.params.savingsAmount,
             navigation.route.params.interestRate,
             navigation.route.params.openTime)
     } else {
         actualInterestAmount = navigation.route.params.actualInterestAmount
     }
-    
+    console.log('actual interest amount:', actualInterestAmount)
     let currentTime = null 
-    if ('settleTime' in navigation.route.params) {
+    if ('settleTime' in navigation.route.params && navigation.route.params.settleTime != null) {
         currentTime = navigation.route.params.settleTime
     } else {
         currentTime = new Date().toUTCString()
-    }
+    }   
+    console.log('current time:', currentTime)
 
     return(
         <View style={styles.container}>

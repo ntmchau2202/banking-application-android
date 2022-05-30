@@ -10,7 +10,9 @@ import StyledInput from '../../components/StyledInput';
 import StyledButton from '../../components/StyledButton';
 import { useState } from 'react';
 import * as Clipboard from 'expo-clipboard'
-import { RSA } from 'react-native-rsa-native';
+// import { RSA } from 'react-native-rsa-native';
+// const RSA = require('react-native-rsa-native').RSA
+const RSAKey = require('react-native-rsa')
 
 export const AccountMenuScreen = () =>  {
     const navigator = useNavigation()
@@ -19,7 +21,7 @@ export const AccountMenuScreen = () =>  {
             <AccountOption name='Register blockchain receipt service'
                             content={async ()=>{
                                 let isEnrolled = await isMemberEnrolled()
-                                if (!isEnrolled) {   
+                                if (!isEnrolled) {       
                                 //     let registerSuccessfully = await registerService(profile.currentCustomer.id, "2222")
                                 //     if (registerSuccessfully) {
                                 //         console.warn("Register service successfully")
@@ -263,27 +265,33 @@ const registerService = async (customerID, password) => {
     let customerAddress = newWallet.address
     let customerPrivateKeyForSigning = newWallet.privateKey
     console.log("customerAddress:", customerAddress)
-    console.log("customerPrivateKey:", customerPrivateKey)
+    console.log("customerPrivateKey:", customerPrivateKeyForSigning)
     // todo: save private key here
     // this is the private key for signing documents
     const encrypted = CryptoES.AES.encrypt(customerPrivateKeyForSigning, password).toString()
     console.log("encrypted:", encrypted)
     // try to save this to a file
     // we also need a private key for decrypting message from the server
-    let pubKeyForEncrypting = null 
-    let privKeyForDecrypting = null
-    RSA.generateKeys(4096).then(
-        function(keys) {
-            if (err != null) {
-                throw err
-            }
-            pubKeyForEncrypting = keys.public
-            privKeyForDecrypting = keys.private
-            console.log("pair of pub/priv")
-            console.log("=========\n public key", publicKey)
-            console.log("=========\n private key", privateKey)
-        }
-    )
+
+    // RSA.generateKeys(4096).then(
+    //     function(keys) {
+    //         if (err != null) {
+    //             throw err
+    //         }
+    //         pubKeyForEncrypting = keys.public
+    //         privKeyForDecrypting = keys.private
+    //         console.log("pair of pub/priv")
+    //         console.log("=========\n public key", publicKey)
+    //         console.log("=========\n private key", privateKey)
+    //     }
+    // )
+
+    const rsa = new RSAKey()
+    const bits = 4096
+    const exponent = '10001'
+    const r = rsa.generate(bits, exponent)
+    let pubKeyForEncrypting = rsa.getPrivateString()
+    let privKeyForDecrypting = rsa.getPublicString()
     
     let encryptedPrivKeyForDecrypting = CryptoES.AES.encrypt(privKeyForDecrypting, password).toString()
 
@@ -305,13 +313,14 @@ const registerService = async (customerID, password) => {
     // return
     try {
         result = await profile.connector.registerBlockchainReceiptService(customerID, customerAddress, pubKeyForEncrypting)
-                    .then(function(response){
+                    .then(async function(response){
                         console.log(response)
                         if (response.status == "success") {
+                            console.log("===============\n", response)
                             let objToWrite = {
                                 "key": encrypted,
                                 "decrypting": encryptedPrivKeyForDecrypting,
-                                "bank_public_key": response.body.details.bank_public_key
+                                "bank_public_key": response.details.bank_public_key
                             }
                         
                             let stringToWrite = JSON.stringify(objToWrite)

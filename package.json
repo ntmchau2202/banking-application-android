@@ -10,6 +10,7 @@
     "eject": "expo eject"
   },
   "dependencies": {
+    "@makerdao/multicall": "^0.12.0",
     "@react-navigation/native": "^6.0.10",
     "@react-navigation/native-stack": "^6.6.1",
     "await-transaction-mined": "^1.0.12",
@@ -43,10 +44,12 @@
     "react-native-material-dropdown": "^0.11.1",
     "react-native-material-menu": "^2.0.0",
     "react-native-paper": "^4.12.1",
+    "react-native-rsa": "^0.0.3",
     "react-native-rsa-native": "^2.0.5",
     "react-native-safe-area-context": "3.3.2",
     "react-native-screen": "^1.0.1",
     "react-native-web": "0.17.1",
+    "threads": "^1.7.0",
     "walletlink": "^2.5.0",
     "web3": "^1.7.3"
   },

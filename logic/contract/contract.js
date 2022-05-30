@@ -3,6 +3,7 @@ const ethers = require("ethers")
 const { hexZeroPad } = require("ethers/lib/utils")
 const CONTRACT_ABI = require("./contractabi.json")
 import * as FileSystem from 'expo-file-system'
+import RSAKey from 'react-native-rsa'
 
 
 class BlockchainInteractor {
@@ -67,7 +68,7 @@ class BlockchainInteractor {
         return result;
     }
 
-    getBankPublicKey() {
+    async getBankPublicKey() {
         const path = FileSystem.documentDirectory + 'sample.json'
         let stringToDecrypt = await FileSystem.readAsStringAsync(privPath, { encoding: FileSystem.EncodingType.UTF8 } )
         let obj = JSON.parse(stringToDecrypt)
@@ -75,14 +76,17 @@ class BlockchainInteractor {
         return bankPublicKey
     }
     
-    encryptReceiptDetails(receiptDetails) {
+    async encryptReceiptDetails(receiptDetails) {
         const receiptString = JSON.stringify(receiptDetails)
-        const bankPublicKey = this.getBankPublicKey()
-        const receiptEncrypted = RSA.encrypt(receiptString, bankPublicKey)
+        const bankPublicKey = await this.getBankPublicKey()
+        const rsa = new RSAKey()
+        rsa.setPublicString(bankPublicKey)
+        const receiptEncrypted = rsa.decrypt(receiptString)
+        // const receiptEncrypted = RSA.encrypt(receiptString, bankPublicKey)
         return receiptEncrypted
     }
 
-    broadcastToIPFS(type, encryptedReceipt, signature) {
+    async broadcastToIPFS(type, encryptedReceipt, signature) {
         let currentTime = new Date().toUTCString()
         let object = {
             "time_created": currentTime,
@@ -125,8 +129,8 @@ class BlockchainInteractor {
         var signature = await this.wallet.verifier.signMessage(txnString)
         console.log("signature:", signature)
         // if things r ok, create a receipt and upload it to ipfs
-        let encryptedReceipt = this.encryptReceiptDetails(txn)
-        let ipfsHash = this.broadcastToIPFS("open", encryptedReceipt, signature)
+        let encryptedReceipt = await this.encryptReceiptDetails(txn)
+        let ipfsHash = await this.broadcastToIPFS("open", encryptedReceipt, signature)
         const hashedTxn = this.wallet.verifier.hashMessage(txnString)
         console.log("hashedTx:", hashedTxn)
         const fetchedGasPrice = this.wallet.node.getGasPrice()
@@ -170,8 +174,8 @@ class BlockchainInteractor {
         var signature = await this.wallet.verifier.signMessage(txnString)
         console.log("signature:", signature)
 
-        let encryptedReceipt = this.encryptReceiptDetails(txn)
-        let ipfsHash = this.broadcastToIPFS("settle", encryptedReceipt, signature)
+        let encryptedReceipt = await this.encryptReceiptDetails(txn)
+        let ipfsHash = await this.broadcastToIPFS("settle", encryptedReceipt, signature)
 
         const hashedTxn = this.wallet.verifier.hashMessage(txnString)
         console.log("hashedTx:", hashedTxn)

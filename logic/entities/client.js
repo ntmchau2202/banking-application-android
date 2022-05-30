@@ -16,6 +16,7 @@ const ethers = require('ethers')
 const { default: CryptoES } = require("crypto-es")
 const { RSA } = require("react-native-rsa-native")
 import * as FileSystem from 'expo-file-system'
+import RSAKey from 'react-native-rsa'
 
 
 class Client {
@@ -147,7 +148,7 @@ class Client {
         return await response.json();
     }
 
-    getCustomerPrivateKey() {
+    async getCustomerPrivateKey() {
         // get passcode
         const passcodePath = FileSystem.documentDirectory + profile.currentCustomer.id + "inf.js"
         let passcodeString = await FileSystem.readAsStringAsync(passcodePath, {encoding: FileSystem.EncodingType.UTF8})
@@ -182,8 +183,10 @@ class Client {
                         let fetchedObject = JSON.parse(content)
                         let encryptedReceipt = fetchedObject.receipt 
                         // decrypt = customer private key
-                        let customerRSAPrivateKey = getCustomerPrivateKey()
-                        let decryptedReceipt = RSA.decrypt(encryptedReceipt, customerRSAPrivateKey).toString()
+                        let customerRSAPrivateKey = await getCustomerPrivateKey()
+                        const rsa = new RSAKey()
+                        rsa.setPrivateString(customerRSAPrivateKey)
+                        let decryptedReceipt = rsa.decrypt(encryptedReceipt)
                         let decryptedObject = JSON.parse(decryptedReceipt)
                         let clientMsg = instance.createOpenTransactionMessage(txn, savingsAccountID)
                         if (decryptedObject == clientMsg) {
@@ -365,7 +368,9 @@ class Client {
                         let fetchedObject = JSON.parse(content)
                         let encryptedReceipt = fetchedObject.receipt 
                         let customerRSAPrivateKey = getCustomerPrivateKey()
-                        let decryptedReceipt = RSA.decrypt(encryptedReceipt, customerRSAPrivateKey).toString()
+                        const rsa = new RSAKey()
+                        rsa.setPrivateString(customerRSAPrivateKey)
+                        let decryptedReceipt = rsa.decrypt(encryptedReceipt)
                         let decryptedObject = JSON.parse(decryptedReceipt)
                         if (decryptedObject == clientMsg) {
                             [txnHash, clientReceiptIPFSHash] = await instance.blockchainInteractor.settleTransaction(clientMsg, signedMsgFromBank)
