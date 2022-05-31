@@ -3,8 +3,11 @@ const ethers = require("ethers")
 const { hexZeroPad } = require("ethers/lib/utils")
 const CONTRACT_ABI = require("./contractabi.json")
 import * as FileSystem from 'expo-file-system'
-import RSAKey from 'react-native-rsa'
-
+// import RSAKey from 'react-native-rsa'
+import {RSA, Crypt} from 'hybrid-crypto-js'
+import { useMoralisFile } from 'react-moralis'
+import base64 from 'react-native-base64'
+const Moralis = require('moralis/node')
 
 class BlockchainInteractor {
     constructor(privateKey) {
@@ -70,24 +73,27 @@ class BlockchainInteractor {
 
     async getBankPublicKey() {
         const path = FileSystem.documentDirectory + 'sample.json'
-        let stringToDecrypt = await FileSystem.readAsStringAsync(privPath, { encoding: FileSystem.EncodingType.UTF8 } )
+        let stringToDecrypt = await FileSystem.readAsStringAsync(path, { encoding: FileSystem.EncodingType.UTF8 } )
         let obj = JSON.parse(stringToDecrypt)
         let bankPublicKey = obj.bank_public_key
+        console.log("bank_public_key:", bankPublicKey)
         return bankPublicKey
     }
     
     async encryptReceiptDetails(receiptDetails) {
         const receiptString = JSON.stringify(receiptDetails)
         const bankPublicKey = await this.getBankPublicKey()
-        const rsa = new RSAKey()
-        rsa.setPublicString(bankPublicKey)
-        const receiptEncrypted = rsa.decrypt(receiptString)
+        const crypt = new Crypt()
+        const receiptEncrypted = crypt.encrypt(bankPublicKey, receiptString)
+        // const rsa = new RSAKey()
+        // rsa.setPublicString(bankPublicKey)
+        // const receiptEncrypted = rsa.decrypt(receiptString)
         // const receiptEncrypted = RSA.encrypt(receiptString, bankPublicKey)
-        return receiptEncrypted
+        return JSON.parse(receiptEncrypted)
     }
 
     async broadcastToIPFS(type, encryptedReceipt, signature) {
-        let currentTime = new Date().toUTCString()
+        let currentTime = new Date().getDate().toString()
         let object = {
             "time_created": currentTime,
             "type": "create",
@@ -97,12 +103,9 @@ class BlockchainInteractor {
         let jsonString = JSON.stringify(object)
     
         // let contentBuffer = Buffer.from(jsonString)
-        let base64String = btoa(jsonString)
+        // let base64String = btoa(jsonString)
+        let base64String = base64.encode(jsonString)
     
-        // connect to moralis node
-        let url = config.ipfsNodeLink
-        let applicationID = config.ipfsAppID
-        let masterKey = config.ipfsMasterKey
         let prefix = ""
         if (type == "settle") {
             prefix = "settle_"
@@ -110,13 +113,31 @@ class BlockchainInteractor {
             prefix = "create_"
         }
         let fileName = prefix + currentTime + ".json"
-        await Moralis.start({serverUrl: url,
-                            appId: applicationID,
-                            masterKey: masterKey})
+        await Moralis.start({serverUrl: profile.ipfsNodeLink,
+                            appId: profile.ipfsAppID,
+                            masterKey: profile.ipfsMasterKey})
         const moralisFile = new Moralis.File(fileName, {base64: base64String}, 'application/json')
         const result = await moralisFile.saveIPFS({useMasterKey: true})
-    
-        console.log(result._hash)
+        
+        // const {saveFile} = useMoralisFile()
+        // const upload = async() => saveFile(
+        //     fileName,
+        //     {base64String},
+        //     {
+        //         type: 'application/json',
+        //         saveIPFS: 'true',
+        //         onSuccess: result => {
+        //             console.log("result:", result)
+        //             return result
+        //         },
+        //         onError: error => {
+        //             console.log("error", error)
+        //         }
+        //     }
+        // )
+        
+        // let result = await upload()
+        return result._hash
     }
 
     async openTransaction(txn, bankSignedTxn) {
@@ -127,16 +148,13 @@ class BlockchainInteractor {
 
         let txnString = JSON.stringify(txn)
         var signature = await this.wallet.verifier.signMessage(txnString)
-        console.log("signature:", signature)
         // if things r ok, create a receipt and upload it to ipfs
         let encryptedReceipt = await this.encryptReceiptDetails(txn)
         let ipfsHash = await this.broadcastToIPFS("open", encryptedReceipt, signature)
         const hashedTxn = this.wallet.verifier.hashMessage(txnString)
-        console.log("hashedTx:", hashedTxn)
         const fetchedGasPrice = this.wallet.node.getGasPrice()
         const estimatedGas = 3000000
 
-        console.log("checkpoint 1.1")
         let pending = await this.contract.BroadcastOpenAccountTransaction(
             hashedTxn,
             [
@@ -150,7 +168,6 @@ class BlockchainInteractor {
             }
         )
 
-        console.log("Transaction hash:", pending.hash)
 
         let receipt = null 
         while (receipt == null) {
@@ -172,13 +189,11 @@ class BlockchainInteractor {
 
         let txnString = JSON.stringify(txn)
         var signature = await this.wallet.verifier.signMessage(txnString)
-        console.log("signature:", signature)
 
         let encryptedReceipt = await this.encryptReceiptDetails(txn)
         let ipfsHash = await this.broadcastToIPFS("settle", encryptedReceipt, signature)
 
         const hashedTxn = this.wallet.verifier.hashMessage(txnString)
-        console.log("hashedTx:", hashedTxn)
 
         const fetchedGasPrice = this.wallet.node.getGasPrice()
         const estimatedGas = 3000000
@@ -195,8 +210,6 @@ class BlockchainInteractor {
                 gasLimit: ethers.utils.hexlify(estimatedGas)
             }
         )
-
-        console.log("Transaction hash:", pending.hash)
 
         let receipt = null 
         while (receipt == null) {
@@ -248,12 +261,9 @@ class BlockchainInteractor {
         }
         let txnString = JSON.stringify(originalMessage)
         var signature = await this.wallet.verifier.signMessage(txnString)
-        console.log("signature:", signature)
         const hashedTxn = this.wallet.verifier.hashMessage(txnString)
-        console.log("hashedTx:", hashedTxn)
 
         let contractInstance = new ethers.Contract(profile.contractAddress, CONTRACT_ABI, this.wallet.node)
-        console.log("contract instance created successfully")
         let result = await contractInstance.verifyUser(hashedTxn, [signature, bankSignature])
         return result
     }
@@ -284,10 +294,7 @@ class Verifier  {
 
     verifyMessage(message, signature, targetAddress) {
         let messageString = JSON.stringify(message)
-        console.log("message to verify:", messageString)
         const recovered = ethers.utils.verifyMessage(messageString, signature)
-        console.log("recovered address:", recovered)
-        console.log("target address:", targetAddress)
         if (recovered === targetAddress) {
             return true
         } else {
@@ -309,7 +316,7 @@ class Wallet {
         // console.log("node:", node)
         // const node = new ethers.providers.WebSocketProvider(profile.blockchainNode)
         // const node = new ethers.providers.Web3Provider(ganache.provider())
-        console.log("node:", node)
+        // console.log("node:", node)
         const wallet = new ethers.Wallet(privateKey, node)
         const provider = wallet.connect(node)
         const verifier = new Verifier(wallet)

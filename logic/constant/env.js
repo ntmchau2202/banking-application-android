@@ -29,6 +29,10 @@ const profile = {
     currentWorkingSavingsAccount: null,
     ipfsPublicNode: "https://gateway.moralisipfs.com/ipfs/",
     bankPublicKey: "",
+
+    ipfsNodeLink: "https://5yydudv6dsi8.usemoralis.com:2053/server",
+    ipfsAppID: "IpJVFeZHcdkYv7zvv4gONC8tqb22WWgadn5ELyvp",
+    ipfsMasterKey: "AFVvTuNHjkomikwQ0CXpM3GDWKNMwpG18PKmvOPB",
 }
 
 const command = {

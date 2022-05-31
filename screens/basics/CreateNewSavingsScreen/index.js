@@ -223,7 +223,6 @@ const CreateNewSavingsScreen = () => {
 export const ConfirmCreateNewSavingsScreen = (navigation) => {
     let navigator = useNavigation()
     let currentTime = null 
-    console.log("received obj:", navigation.route.params)
     if ('openTime' in navigation.route.params) {
         currentTime = navigation.route.params.openTime
     } else {

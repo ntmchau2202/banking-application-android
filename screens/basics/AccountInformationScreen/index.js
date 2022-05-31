@@ -12,8 +12,10 @@ import { useState } from 'react';
 import * as Clipboard from 'expo-clipboard'
 // import { RSA } from 'react-native-rsa-native';
 // const RSA = require('react-native-rsa-native').RSA
-const RSAKey = require('react-native-rsa')
-
+// const RSAKey = require('react-native-rsa')
+// const RSA = require('hybrid-crypto-js').RSA
+// const Crypt = require('hybrid-crypto-js').Crypt
+import {RSA} from 'hybrid-crypto-js'
 export const AccountMenuScreen = () =>  {
     const navigator = useNavigation()
     return (
@@ -21,7 +23,7 @@ export const AccountMenuScreen = () =>  {
             <AccountOption name='Register blockchain receipt service'
                             content={async ()=>{
                                 let isEnrolled = await isMemberEnrolled()
-                                if (!isEnrolled) {       
+                                // if (!isEnrolled) {       
                                 //     let registerSuccessfully = await registerService(profile.currentCustomer.id, "2222")
                                 //     if (registerSuccessfully) {
                                 //         console.warn("Register service successfully")
@@ -32,14 +34,13 @@ export const AccountMenuScreen = () =>  {
                                 //     console.warn("User already enrolled in the service")
                                     navigator.navigate('Enter new passcode')
 
-                                } else {
-                                    console.warn("User has already enrolled in the contract")
-                                }
+                                // } else {
+                                //     console.warn("User has already enrolled in the contract")
+                                // }
                             }}/>
             <AccountOption name='Export private key'
                             content={async () => {
                                 let data = await UnlockPrivateKey()
-                                console.log("outer: data:", data)
                                 navigator.navigate('Unlock private key', {
                                     information: data
                                 })
@@ -87,14 +88,13 @@ export const EnterNewPasscodeScreen = () => {
                                     try {
                                         // save passcode to a file
                                         let objToWrite = {
-                                            "u": profile.currentCustomer.id,
-                                            "p": passcode,
+                                            u: profile.currentCustomer.id,
+                                            p: passcode,
                                         }
-                                    
+                                        console.log("obj to write:", objToWrite)
                                         let stringToWrite = JSON.stringify(objToWrite)
                                     
                                         const path = FileSystem.documentDirectory + profile.currentCustomer.id + "inf.js"
-                                        console.log('path:', path)
                                         await FileSystem.writeAsStringAsync(path, stringToWrite,{ encoding: FileSystem.EncodingType.UTF8 })
 
                                         let ok = await registerService(profile.currentCustomer.id, passcode)
@@ -105,7 +105,6 @@ export const EnterNewPasscodeScreen = () => {
                                         }
                                     } catch (error) {
                                         Alert.alert("An unexpected error occurred")
-                                        console.log("Error when registering:", error)
                                     }
                                 }
                             }}/>
@@ -134,7 +133,6 @@ export const UnlockPrivateKeyScreen = (navigation) => {
                                     if (passcode === information.p) {
                                         const privPath = FileSystem.documentDirectory + 'sample.json'
                                         let stringToDecrypt = await FileSystem.readAsStringAsync(privPath, { encoding: FileSystem.EncodingType.UTF8 } )
-                                        console.log("in stringToDecrypt:", stringToDecrypt)
                                         let obj = JSON.parse(stringToDecrypt)
                                         const decrypted = CryptoES.AES.decrypt(obj.key, passcode).toString(CryptoES.enc.Utf8)
                                         navigator.navigate('Private key', {
@@ -151,7 +149,6 @@ export const UnlockPrivateKeyScreen = (navigation) => {
 }
 
 const UnlockPrivateKey = async () => {
-    console.log("Got here")
     const path = FileSystem.documentDirectory + profile.currentCustomer.id + "inf.js"
     const data = await FileSystem.readAsStringAsync(path,{ encoding: FileSystem.EncodingType.UTF8 } )
                             // .then(function(result) {
@@ -161,7 +158,6 @@ const UnlockPrivateKey = async () => {
                             //     console.warn("An error occured:", error)
                             // })
     let obj = JSON.parse(data)
-    console.log("data:", obj)
     return obj
     // const navigator = useNavigation()
     // navigator.navigate('Unlock private key', {
@@ -226,13 +222,11 @@ const isMemberEnrolled = async () => {
     try {
         result = profile.connector.isCustomerEnrolled(profile.currentCustomer.id)
         .then(function(response) {
-            console.log("response:", response)
             return response
         }).catch(function (error) {
             throw error
         })
     } catch (error) {
-        console.log(error)
         throw error
     } 
     return result
@@ -245,8 +239,6 @@ const createRandomWallet = async () => {
     const privateKey = hdNode.privateKey
     const addr = hdNode.address
     // connect to node provider
-    console.log("private Key:", privateKey)
-    console.log("address:", addr)
     // const node = new ethers.providers.InfuraProvider('maticmum', {
     //     projectId: "7d8f19d50b954a0fa348985e6079f108",
     //     projectSecret: "05a5c4239e914fef9b00bfecbd456a61",
@@ -286,15 +278,23 @@ const registerService = async (customerID, password) => {
     //     }
     // )
 
-    const rsa = new RSAKey()
-    const bits = 4096
-    const exponent = '10001'
-    const r = rsa.generate(bits, exponent)
-    let pubKeyForEncrypting = rsa.getPrivateString()
-    let privKeyForDecrypting = rsa.getPublicString()
-    
+    // const rsa = new RSAKey()
+    // const bits = 4096
+    // const exponent = '10001'
+    // const r = rsa.generate(bits, exponent)
+    // let pubKeyForEncrypting = rsa.getPrivateString()
+    // let privKeyForDecrypting = rsa.getPublicString()
+    const rsa = new RSA()
+    var pubKeyForEncrypting = null 
+    var privKeyForDecrypting = null
+    await rsa.generateKeyPairAsync().then(keyPair => {
+        pubKeyForEncrypting = keyPair.publicKey;
+        privKeyForDecrypting = keyPair.privateKey;
+    });
+    console.log("pub key for encrypting:", pubKeyForEncrypting)
+    console.log("priv key for decrypting", privKeyForDecrypting)
     let encryptedPrivKeyForDecrypting = CryptoES.AES.encrypt(privKeyForDecrypting, password).toString()
-
+    console.log("encrypted priv key:", encryptedPrivKeyForDecrypting)
     // let objToWrite = {
     //     "key": encrypted,
     //     "decrypting": encryptedPrivKeyForDecrypting
@@ -316,7 +316,6 @@ const registerService = async (customerID, password) => {
                     .then(async function(response){
                         console.log(response)
                         if (response.status == "success") {
-                            console.log("===============\n", response)
                             let objToWrite = {
                                 "key": encrypted,
                                 "decrypting": encryptedPrivKeyForDecrypting,
@@ -326,7 +325,6 @@ const registerService = async (customerID, password) => {
                             let stringToWrite = JSON.stringify(objToWrite)
                         
                             const path = FileSystem.documentDirectory + 'sample.json'
-                            console.log('path:', path)
                             await FileSystem.writeAsStringAsync(path, stringToWrite,{ encoding: FileSystem.EncodingType.UTF8 })
                             return true
                         } else {

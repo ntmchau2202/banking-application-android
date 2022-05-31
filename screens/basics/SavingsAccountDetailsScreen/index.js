@@ -43,7 +43,6 @@ const TableRowAttribute = (props) => {
                                     try {
                                         profile.connector.getTransactionDetailsByHash(method, originalObject.content)
                                         .then(function(result){
-                                            console.log("fetched result:", result)
                                             data = result
                                             navigation.navigate('Hash details', {
                                                 name: props.name,
@@ -55,7 +54,6 @@ const TableRowAttribute = (props) => {
                                             throw error
                                         })
                                     } catch (error) {
-                                        console.log(error)
                                         throw error
                                     }
                                 }

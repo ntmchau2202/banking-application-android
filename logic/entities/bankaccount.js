@@ -45,7 +45,6 @@ class SavingsAccount {
     // }
 
     constructor(obj) {
-        console.log("original object:", obj)
         this.id = obj.savingsaccount_id
         this.type = obj.product_type
         this.period = obj.savings_period

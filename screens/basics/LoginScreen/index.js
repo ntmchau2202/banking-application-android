@@ -65,7 +65,6 @@ export const LoginScreen = (props) => {
                             })
                         }
                     }).catch(function(error){
-                        console.log("error logging in:", error)
                         toggleWarning(true)
                         setLoginContent('Login failed')
                     })

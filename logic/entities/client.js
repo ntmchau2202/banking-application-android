@@ -14,10 +14,8 @@ const fetch = require('node-fetch')
 const axios = require('axios').default
 const ethers = require('ethers')
 const { default: CryptoES } = require("crypto-es")
-const { RSA } = require("react-native-rsa-native")
 import * as FileSystem from 'expo-file-system'
-import RSAKey from 'react-native-rsa'
-
+import { RSA, Crypt} from 'hybrid-crypto-js'
 
 class Client {
     // const customer 
@@ -69,7 +67,6 @@ class Client {
         let information = null
         try {
             let uri = '/transaction/' + hash 
-            console.log("uri:", uri)
             await this.moralisClient.get(uri, {
                 params: {
                     chain: profile.defaultChain
@@ -80,14 +77,12 @@ class Client {
                     information = instance.blockchainInteractor.decodeInput(type, body)
                     return information
                 } else {
-                    console.log(response)
                     throw 'an error occured when fetching transaction details'
                 }
             }).catch(function(error) {
                 throw error
             })
         } catch(error) {
-            console.log(error)
             throw error
         }   
         return information
@@ -110,7 +105,6 @@ class Client {
                         throw "error rendering customer info: " + error
                     }
                 } else {
-                    console.log("error message:", response.data.details.message)
                     throw response.data.details.message
                 }
             }).catch(function (error) {
@@ -144,8 +138,10 @@ class Client {
 
     async fetchIPFSDoc(ipfsHash) {
         const url = profile.ipfsPublicNode + ipfsHash
-        const response = await fetch(url);
-        return await response.json();
+        console.log("url:", url)
+        const response = await fetch(url).then(result => result.json())
+        console.log("response:", response)
+        return response
     }
 
     async getCustomerPrivateKey() {
@@ -159,7 +155,7 @@ class Client {
         let stringToDecrypt = await FileSystem.readAsStringAsync(privPath, { encoding: FileSystem.EncodingType.UTF8 } )
         let decryptedObject = JSON.parse(stringToDecrypt)
         let encryptedRSAPrivKey = decryptedObject.decrypting
-        let decryptedRSAPrivKey = CryptoES.AES.decrypt(encryptedRSAPrivKey, passcode)
+        let decryptedRSAPrivKey = CryptoES.AES.decrypt(encryptedRSAPrivKey, passcode).toString(CryptoES.enc.Utf8)
         return decryptedRSAPrivKey
     }
 
@@ -180,14 +176,17 @@ class Client {
                         let ipfsHash = response.data.details.receipt
                         // TODO: download file from ipfs to check message
                         let content = await instance.fetchIPFSDoc(ipfsHash)
+                        console.log("do we have the content?:", content)
                         let fetchedObject = JSON.parse(content)
                         let encryptedReceipt = fetchedObject.receipt 
                         // decrypt = customer private key
-                        let customerRSAPrivateKey = await getCustomerPrivateKey()
-                        const rsa = new RSAKey()
-                        rsa.setPrivateString(customerRSAPrivateKey)
-                        let decryptedReceipt = rsa.decrypt(encryptedReceipt)
-                        let decryptedObject = JSON.parse(decryptedReceipt)
+                        let customerRSAPrivateKey = await instance.getCustomerPrivateKey()
+                        // const rsa = new RSAKey()
+                        // rsa.setPrivateString(customerRSAPrivateKey)
+                        // let decryptedReceipt = rsa.decrypt(encryptedReceipt)
+                        const crypt = new Crypt()
+                        let decryptedReceipt = crypt.decrypt(customerRSAPrivateKey, encryptedReceipt)
+                        let decryptedObject = JSON.parse(decryptedReceipt.message)
                         let clientMsg = instance.createOpenTransactionMessage(txn, savingsAccountID)
                         if (decryptedObject == clientMsg) {
                             [txnHash, clientIPFSReceiptHash] = await instance.blockchainInteractor.openTransaction(clientMsg, signedMsgFromBank)
@@ -225,7 +224,6 @@ class Client {
                 throw error
             })
         } catch (error) {
-            console.log(error)
             throw this.errorNotification("error when open account", error)
         }
     }
@@ -250,7 +248,6 @@ class Client {
             })).then(function(response){
                 if(response.status === 200) {
                     let bankSig = response.data.details.signature 
-                    console.log(account)
                     let message = {
                         "savingsaccount_id": account.savingsAccountID,
                         "actual_interest_amount": account.actualInterestAmount,
@@ -258,7 +255,6 @@ class Client {
                     }
                     instance.blockchainInteractor.verifySignature(message, bankSig)
                         .then(function(result){
-                            console.log("returned result:", result)
                             if (result[0] === true) {
                                 // valid
                                 console.warn("Information is valid")
@@ -280,21 +276,16 @@ class Client {
 
     async isCustomerEnrolled(customerID) {
         const instance = this 
-        console.log("in isCustomerEnrolled")
         var result = null
         try {
-            console.log("Here we go again")
             result = await this.httpClient.post("/register/exist", this.createMessage(command.checkEnrollment, {
                 "customer_id": customerID
             })).then(function(response){
-                console.log("result:", response.data)
                 return response.data.details.is_enrolled
             }).catch(function(error){
-                console.log("error:", error)
                 throw error
             })
         } catch (error) {
-            console.log(error)
             throw error
         } finally {
             return result
@@ -312,7 +303,6 @@ class Client {
             })).then(function(response){
                 if(response.status === 200) {
                     let bankSig = response.data.details.signature 
-                    console.log(account)
                     let message = {
                         "savingsaccount_id": account.savingsAccountID,
                         "product_type": account.savingsType,
@@ -328,7 +318,6 @@ class Client {
                     }
                     instance.blockchainInteractor.verifySignature(message, bankSig)
                         .then(function(result){
-                            console.log("returned result:", result)
                             if (result[0] === true) {
                                 // valid
                                 console.warn("Information is valid")
@@ -364,15 +353,22 @@ class Client {
                         signedMsgFromBank = response.data.details.signature
                         ipfsHash = response.data.details.receipt
                         let clientMsg = instance.createSettleTransactionMessage(txn)
-                        let content = await instance.fetchIPFSDoc(ipfsHash)
-                        let fetchedObject = JSON.parse(content)
+                        let fetchedObject = await instance.fetchIPFSDoc(ipfsHash)
+                        console.log("do we have the content?:", fetchedObject)
                         let encryptedReceipt = fetchedObject.receipt 
-                        let customerRSAPrivateKey = getCustomerPrivateKey()
-                        const rsa = new RSAKey()
-                        rsa.setPrivateString(customerRSAPrivateKey)
-                        let decryptedReceipt = rsa.decrypt(encryptedReceipt)
-                        let decryptedObject = JSON.parse(decryptedReceipt)
-                        if (decryptedObject == clientMsg) {
+                        let customerRSAPrivateKey = await instance.getCustomerPrivateKey()
+                        console.log("Customer RSA private key:", customerRSAPrivateKey)
+                        console.log("going to decrypt:", encryptedReceipt)
+                        // const rsa = new RSAKey()
+                        // rsa.setPrivateString(customerRSAPrivateKey)
+                        // let decryptedReceipt = rsa.decrypt(encryptedReceipt)
+                        const crypt = new Crypt() 
+                        const decryptedReceipt = crypt.decrypt(customerRSAPrivateKey, JSON.stringify(encryptedReceipt))
+                        console.log("decrypted receipt:", decryptedReceipt)
+                        let decryptedObject = JSON.parse(decryptedReceipt.message)
+                        console.log("decrypted object:", decryptedObject)
+                        console.log("client message:", clientMsg)
+                        if (Object.entries(decryptedObject).toString() == Object.entries(clientMsg).toString()) {
                             [txnHash, clientReceiptIPFSHash] = await instance.blockchainInteractor.settleTransaction(clientMsg, signedMsgFromBank)
                             console.log("Returned txnHash:", txnHash)
                         } else {
@@ -410,7 +406,6 @@ class Client {
                 throw error
             })
         } catch (error) {
-            console.log(error)
             throw this.errorNotification("error when settle account", error)
         }
     }

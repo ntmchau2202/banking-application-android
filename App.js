@@ -45,6 +45,8 @@ const WelcomeScreen = ({navigation}) => {
 }
 
 export default function App() {
+  <MoralisProvider serverUrl={profile.ipfsNodeLink}
+                      appId={profile.ipfsAppID}/>
   return (
     <NavigationContainer>
       <Stack.Navigator>
