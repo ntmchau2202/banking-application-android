@@ -153,7 +153,6 @@ class BlockchainInteractor {
             }
         )
 
-
         let receipt = null 
         while (receipt == null) {
             receipt = await this.wallet.node.getTransactionReceipt(pending.hash)

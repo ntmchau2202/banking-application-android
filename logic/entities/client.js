@@ -192,11 +192,13 @@ class Client {
                         // const rsa = new RSAKey()
                         // rsa.setPrivateString(customerRSAPrivateKey)
                         // let decryptedReceipt = rsa.decrypt(encryptedReceipt)
-                        const crypt = new Crypt()
-                        let decryptedReceipt = crypt.decrypt(customerRSAPrivateKey, encryptedReceipt)
+                        const crypt = new Crypt() 
+                        const decryptedReceipt = crypt.decrypt(customerRSAPrivateKey, JSON.stringify(encryptedReceipt))
+                        console.log("decrypted receipt:", decryptedReceipt)
                         let decryptedObject = JSON.parse(decryptedReceipt.message)
-                        let clientMsg = instance.createOpenTransactionMessage(txn, savingsAccountID)
-                        if (decryptedObject == clientMsg) {
+                        console.log("decrypted object:", decryptedObject)
+                        console.log("client message:", clientMsg)
+                        if (Object.entries(decryptedObject).toString() == Object.entries(clientMsg).toString()) {
                             [txnHash, clientIPFSReceiptHash] = await instance.blockchainInteractor.openTransaction(clientMsg, signedMsgFromBank)
                         } else {
                             throw 'creation information mismatch'

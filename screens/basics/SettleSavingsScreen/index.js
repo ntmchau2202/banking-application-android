@@ -81,10 +81,6 @@ const ConfirmSettleScreen = (navigation) => {
 
                                 let connector = new Client()
 
-                                // let encryptedReceipt = await connector.blockchainInteractor.encryptReceiptDetails(message)
-                                // let signature = await connector.blockchainInteractor.wallet.verifier.signMessage(JSON.stringify(encryptedReceipt))
-                                // let ipfsHash = await broadcastToIPFS("settle", encryptedReceipt, signature)
-                                // console.log("ipfsHash:", ipfsHash)
                                 await connector.requestSettleAccount(message).then(function(response){
                                     if (typeof(response) === 'object') {
                                         if ('error' in response) {

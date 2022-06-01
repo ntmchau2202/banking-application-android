@@ -23,7 +23,7 @@ export const AccountMenuScreen = () =>  {
             <AccountOption name='Register blockchain receipt service'
                             content={async ()=>{
                                 let isEnrolled = await isMemberEnrolled()
-                                // if (!isEnrolled) {       
+                                if (!isEnrolled) {       
                                 //     let registerSuccessfully = await registerService(profile.currentCustomer.id, "2222")
                                 //     if (registerSuccessfully) {
                                 //         console.warn("Register service successfully")
@@ -34,9 +34,9 @@ export const AccountMenuScreen = () =>  {
                                 //     console.warn("User already enrolled in the service")
                                     navigator.navigate('Enter new passcode')
 
-                                // } else {
-                                //     console.warn("User has already enrolled in the contract")
-                                // }
+                                } else {
+                                    console.warn("User has already enrolled in the contract")
+                                }
                             }}/>
             <AccountOption name='Export private key'
                             content={async () => {
