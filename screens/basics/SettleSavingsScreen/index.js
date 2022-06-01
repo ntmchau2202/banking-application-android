@@ -9,6 +9,9 @@ import { useNavigation } from "@react-navigation/native";
 // import { Client } from "../../../logic/entities/client";
 const Client = require("../../../logic/entities/client").Client
 const profile = require("../../../logic/constant/env").profile
+import base64 from 'react-native-base64'
+import { useMoralisFile } from "react-moralis";
+import { MoralisProvider } from "react-moralis";
 
 function calculateActualInterestAmount(savingsAmount, interestRate, openTimeString) {
     let currentTime = new Date()
@@ -78,6 +81,10 @@ const ConfirmSettleScreen = (navigation) => {
 
                                 let connector = new Client()
 
+                                // let encryptedReceipt = await connector.blockchainInteractor.encryptReceiptDetails(message)
+                                // let signature = await connector.blockchainInteractor.wallet.verifier.signMessage(JSON.stringify(encryptedReceipt))
+                                // let ipfsHash = await broadcastToIPFS("settle", encryptedReceipt, signature)
+                                // console.log("ipfsHash:", ipfsHash)
                                 await connector.requestSettleAccount(message).then(function(response){
                                     if (typeof(response) === 'object') {
                                         if ('error' in response) {

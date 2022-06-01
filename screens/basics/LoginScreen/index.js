@@ -50,6 +50,7 @@ export const LoginScreen = (props) => {
                 title='Login'
                 onPress={()=> {
                     const client = new Client()
+                    // const client = Client()
                     profile.connector = client
                     profile.connector.login(phone, password)
                     .then(function(result) {

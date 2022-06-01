@@ -1,26 +1,5 @@
 [
 	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_bankOwner",
-				"type": "address"
-			},
-			{
-				"internalType": "string",
-				"name": "_bankName",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "_bankID",
-				"type": "string"
-			}
-		],
-		"stateMutability": "nonpayable",
-		"type": "constructor"
-	},
-	{
 		"anonymous": false,
 		"inputs": [
 			{
@@ -115,6 +94,12 @@
 				"internalType": "bytes",
 				"name": "_secondSignature",
 				"type": "bytes"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "_receiptHash",
+				"type": "string"
 			}
 		],
 		"name": "OpenSavingsAccountTransaction",
@@ -165,46 +150,16 @@
 				"internalType": "bytes",
 				"name": "_secondSignature",
 				"type": "bytes"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "_receiptHash",
+				"type": "string"
 			}
 		],
 		"name": "SettleSavingsAccountTransaction",
 		"type": "event"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "bytes32",
-				"name": "_hash",
-				"type": "bytes32"
-			},
-			{
-				"internalType": "bytes[2]",
-				"name": "_signatures",
-				"type": "bytes[2]"
-			}
-		],
-		"name": "BroadcastOpenAccountTransaction",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "bytes32",
-				"name": "_hash",
-				"type": "bytes32"
-			},
-			{
-				"internalType": "bytes[2]",
-				"name": "_signatures",
-				"type": "bytes[2]"
-			}
-		],
-		"name": "BroadcastSettleAccountTransaction",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
 	},
 	{
 		"inputs": [],
@@ -245,6 +200,52 @@
 		"type": "function"
 	},
 	{
+		"inputs": [
+			{
+				"internalType": "bytes32",
+				"name": "_hash",
+				"type": "bytes32"
+			},
+			{
+				"internalType": "bytes[2]",
+				"name": "_signatures",
+				"type": "bytes[2]"
+			},
+			{
+				"internalType": "string",
+				"name": "_receiptHash",
+				"type": "string"
+			}
+		],
+		"name": "BroadcastOpenAccountTransaction",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes32",
+				"name": "_hash",
+				"type": "bytes32"
+			},
+			{
+				"internalType": "bytes[2]",
+				"name": "_signatures",
+				"type": "bytes[2]"
+			},
+			{
+				"internalType": "string",
+				"name": "_receiptHash",
+				"type": "string"
+			}
+		],
+		"name": "BroadcastSettleAccountTransaction",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
 		"inputs": [],
 		"name": "deactivateBank",
 		"outputs": [],
@@ -263,6 +264,40 @@
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "newOwner",
+				"type": "address"
+			}
+		],
+		"name": "transferOwnership",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_bankOwner",
+				"type": "address"
+			},
+			{
+				"internalType": "string",
+				"name": "_bankName",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_bankID",
+				"type": "string"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
 	},
 	{
 		"inputs": [
@@ -365,19 +400,6 @@
 			}
 		],
 		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "newOwner",
-				"type": "address"
-			}
-		],
-		"name": "transferOwnership",
-		"outputs": [],
-		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{

@@ -1,0 +1,11 @@
+{
+    "name": "mobile-node-core",
+    "version": "0.0.1",
+    "description": "node part of the project",
+    "main": "main.js",
+    "author": "chauntm",
+    "license": "",
+    "dependencies": {
+        "moralis": "^1.8.0"
+    }
+}

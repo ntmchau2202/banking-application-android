@@ -26,6 +26,10 @@ class Client {
     // })
 
     // customer has client
+    // componentWillMount() {
+    //     nodejs.start('main.js')
+    // }
+
     constructor() {
         const blockchainInteractor = new BlockchainInteractor(profile.customerPrivateKey)
         const httpClient = axios.create({
@@ -33,14 +37,18 @@ class Client {
             timeout: profile.timeOut,
             headers: profile.headers
         })
-        const moralisClient = axios.create({
-            baseURL: profile.moralisUrl,
-            timeout: profile.timeOut,
-            headers: profile.moralisHeaders,
+        const ipfsClient = axios.create({
+            baseURL: profile.ipfsMiddleware,
+            headers: profile.headers,
         })
         this.httpClient = httpClient
         this.blockchainInteractor = blockchainInteractor
-        this.moralisClient = moralisClient
+        this.ipfsClient = ipfsClient
+        // this.state = {
+        //     httpClient: httpClient,
+        //     blockchainInteractor: blockchainInteractor,
+        //     moralisClient: moralisClient
+        // }
     }
 
     createMessage(command, details) {
@@ -62,31 +70,31 @@ class Client {
         this.blockchainInteractor = blockchainInteractor
     }
 
-    async getTransactionDetailsByHash(type, hash) {
-        const instance = this
-        let information = null
-        try {
-            let uri = '/transaction/' + hash 
-            await this.moralisClient.get(uri, {
-                params: {
-                    chain: profile.defaultChain
-                }
-            }).then(function(response) {
-                if(response.status === 200) {
-                    let body = response.data.input
-                    information = instance.blockchainInteractor.decodeInput(type, body)
-                    return information
-                } else {
-                    throw 'an error occured when fetching transaction details'
-                }
-            }).catch(function(error) {
-                throw error
-            })
-        } catch(error) {
-            throw error
-        }   
-        return information
-    }
+    // async getTransactionDetailsByHash(type, hash) {
+    //     const instance = this
+    //     let information = null
+    //     try {
+    //         let uri = '/transaction/' + hash 
+    //         await this.moralisClient.get(uri, {
+    //             params: {
+    //                 chain: profile.defaultChain
+    //             }
+    //         }).then(function(response) {
+    //             if(response.status === 200) {
+    //                 let body = response.data.input
+    //                 information = instance.blockchainInteractor.decodeInput(type, body)
+    //                 return information
+    //             } else {
+    //                 throw 'an error occured when fetching transaction details'
+    //             }
+    //         }).catch(function(error) {
+    //             throw error
+    //         })
+    //     } catch(error) {
+    //         throw error
+    //     }   
+    //     return information
+    // }
 
     // ok
     async login(phone, password) {
@@ -338,6 +346,22 @@ class Client {
         
     }
 
+    async postReceipt(stringToPost) {
+        let ipfsHash = null
+        try {
+            console.log("string to post:", stringToPost)
+            ipfsHash = await this.ipfsClient.post("/postReceipt", stringToPost)
+                        .then(function(result) {
+                            return result.data
+                        }).catch(function(error) {
+                            throw error
+                        })
+        } catch (error) {
+            throw error
+        }
+        return ipfsHash
+    }
+
     async requestSettleAccount(txn) {
         const instance = this
         var savingsAccountID = txn.savingsaccount_id
@@ -351,7 +375,7 @@ class Client {
                 if (response.status === 200) {
                     try {
                         signedMsgFromBank = response.data.details.signature
-                        ipfsHash = response.data.details.receipt
+                        let ipfsHash = response.data.details.receipt
                         let clientMsg = instance.createSettleTransactionMessage(txn)
                         let fetchedObject = await instance.fetchIPFSDoc(ipfsHash)
                         console.log("do we have the content?:", fetchedObject)

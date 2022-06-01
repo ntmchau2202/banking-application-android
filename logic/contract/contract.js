@@ -5,9 +5,11 @@ const CONTRACT_ABI = require("./contractabi.json")
 import * as FileSystem from 'expo-file-system'
 // import RSAKey from 'react-native-rsa'
 import {RSA, Crypt} from 'hybrid-crypto-js'
-import { useMoralisFile } from 'react-moralis'
+// import { useMoralisFile } from 'react-moralis'
 import base64 from 'react-native-base64'
-const Moralis = require('moralis/node')
+// const Moralis = require('moralis/node')
+// import { create} from 'ipfs-http-client'
+
 
 class BlockchainInteractor {
     constructor(privateKey) {
@@ -93,10 +95,11 @@ class BlockchainInteractor {
     }
 
     async broadcastToIPFS(type, encryptedReceipt, signature) {
+        console.log("Attempting to broadcast...")
         let currentTime = new Date().getDate().toString()
         let object = {
             "time_created": currentTime,
-            "type": "create",
+            "type": type,
             "customer_signature": signature,
             "receipt": encryptedReceipt
         }
@@ -104,40 +107,22 @@ class BlockchainInteractor {
     
         // let contentBuffer = Buffer.from(jsonString)
         // let base64String = btoa(jsonString)
-        let base64String = base64.encode(jsonString)
-    
-        let prefix = ""
-        if (type == "settle") {
-            prefix = "settle_"
-        } else if (type == "create") {
-            prefix = "create_"
-        }
-        let fileName = prefix + currentTime + ".json"
-        await Moralis.start({serverUrl: profile.ipfsNodeLink,
-                            appId: profile.ipfsAppID,
-                            masterKey: profile.ipfsMasterKey})
-        const moralisFile = new Moralis.File(fileName, {base64: base64String}, 'application/json')
-        const result = await moralisFile.saveIPFS({useMasterKey: true})
-        
-        // const {saveFile} = useMoralisFile()
-        // const upload = async() => saveFile(
-        //     fileName,
-        //     {base64String},
-        //     {
-        //         type: 'application/json',
-        //         saveIPFS: 'true',
-        //         onSuccess: result => {
-        //             console.log("result:", result)
-        //             return result
-        //         },
-        //         onError: error => {
-        //             console.log("error", error)
-        //         }
-        //     }
-        // )
-        
-        // let result = await upload()
-        return result._hash
+        // let base64String = base64.encode(jsonString)
+        console.log("jsonString:", jsonString)
+        let ipfsHash = await profile.connector.postReceipt(jsonString)
+        console.log("returned ipfsHash:", ipfsHash)
+        return ipfsHash
+        // let prefix = ""
+        // if (type == "settle") {
+        //     prefix = "settle_"
+        // } else if (type == "create") {
+        //     prefix = "create_"
+        // }
+        // let fileName = prefix + currentTime + ".json"
+        // console.log("Awaiting upload...")
+        // const ipfs = create("https://ipfs.infura.io:5001")
+        // let result = await ipfs.add(jsonString)
+        // return result.path
     }
 
     async openTransaction(txn, bankSignedTxn) {
@@ -191,6 +176,9 @@ class BlockchainInteractor {
         var signature = await this.wallet.verifier.signMessage(txnString)
 
         let encryptedReceipt = await this.encryptReceiptDetails(txn)
+        console.log("Encrypted receipt:", encryptedReceipt)
+
+        
         let ipfsHash = await this.broadcastToIPFS("settle", encryptedReceipt, signature)
 
         const hashedTxn = this.wallet.verifier.hashMessage(txnString)

@@ -1,0 +1,5 @@
+#!/bin/bash
+      # Helper script for Gradle to call node on macOS in case it is not found
+      export PATH=$PATH:/Users/admin/Documents/Study/GR/mobile/BlockchainPortal/node_modules/nodejs-mobile-react-native/node_modules/.bin:/Users/admin/Documents/Study/GR/mobile/BlockchainPortal/node_modules/node_modules/.bin:/Users/admin/Documents/Study/GR/mobile/BlockchainPortal/node_modules/.bin:/Users/admin/Documents/Study/GR/mobile/node_modules/.bin:/Users/admin/Documents/Study/GR/node_modules/.bin:/Users/admin/Documents/Study/node_modules/.bin:/Users/admin/Documents/node_modules/.bin:/Users/admin/node_modules/.bin:/Users/node_modules/.bin:/node_modules/.bin:/opt/homebrew/lib/node_modules/npm/node_modules/@npmcli/run-script/lib/node-gyp-bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/go/bin:/usr/local/share/dotnet:~/.dotnet/tools:/Library/Apple/usr/bin
+      node $@
+    

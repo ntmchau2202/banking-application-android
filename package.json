@@ -1,11 +1,10 @@
 {
   "name": "blockchainportal",
   "version": "1.0.0",
-  "main": "node_modules/expo/AppEntry.js",
   "scripts": {
-    "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "start": "expo start --dev-client",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
     "web": "expo start --web",
     "eject": "expo eject"
   },
@@ -23,16 +22,19 @@
     "ethers": "^5.6.7",
     "expo": "~44.0.0",
     "expo-clipboard": "~2.1.0",
-    "expo-file-system": "^14.0.0",
+    "expo-file-system": "~13.1.4",
     "expo-random": "~12.1.1",
+    "expo-splash-screen": "~0.14.1",
     "expo-status-bar": "~1.2.0",
     "express": "^4.18.1",
     "ganache-cli": "^6.12.2",
     "hybrid-crypto-js": "^0.2.4",
+    "ipfs-http-client": "^57.0.0",
     "moment": "^2.29.3",
     "moralis": "^1.8.0",
     "native-base": "^3.4.4",
     "node-fetch": "2.0",
+    "nodejs-mobile-react-native": "^0.8.1",
     "react": "17.0.1",
     "react-dom": "^17.0.1",
     "react-moralis": "^1.4.0",
@@ -42,7 +44,7 @@
     "react-native-dropdown-picker": "^5.4.0",
     "react-native-elements": "^3.0.0",
     "react-native-fs": "^2.20.0",
-    "react-native-get-random-values": "^1.8.0",
+    "react-native-get-random-values": "~1.7.0",
     "react-native-material-dropdown": "^0.11.1",
     "react-native-material-menu": "^2.0.0",
     "react-native-paper": "^4.12.1",
@@ -50,6 +52,8 @@
     "react-native-rsa-native": "^2.0.5",
     "react-native-safe-area-context": "3.3.2",
     "react-native-screen": "^1.0.1",
+    "react-native-screens": "~3.10.1",
+    "react-native-svg": "12.1.1",
     "react-native-web": "0.17.1",
     "threads": "^1.7.0",
     "walletlink": "^2.5.0",
@@ -58,5 +62,8 @@
   "devDependencies": {
     "@babel/core": "^7.12.9"
   },
-  "private": true
+  "private": true,
+  "resolutions": {
+    "ipfs-http-client": "56.0.0"
+  }
 }

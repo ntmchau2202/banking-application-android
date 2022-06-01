@@ -1,6 +1,5 @@
 const profile = {
     baseUrl: "http://localhost:9999/v1",
-    moralisUrl: "https://deep-index.moralis.io/api/v2/",
     timeOut: 1000000,
     headers: {
         'Content-type': "application/json",
@@ -19,7 +18,7 @@ const profile = {
     // contractAddress: "0x1f1d37d21E096cE005Fd36351908d98a81D0Dd2E",
     // contractAddress: "0x0c937E987a97792535755BA277802DDDb45bbE65", // ganache
     // contractAddress: "0x8eD119E25A00B4E0Ec58126DFE62F2bdd95D51B5", // old
-    contractAddress: "0x76c31Df6975F1fcaD2d1b87d4BD360e078B678Ff",
+    contractAddress: "0xcD03379581B202E6Fc0ae482A50A49aB07Cb63fA",
     bankOwner: "0x6d3951c9A9d34D2a59849AD0fe6fdBCEf4874149",
     // blockchainNode: "ws://127.0.0.1:8546",
     // blockchainNode: "http://127.0.0.1:8545",
@@ -30,9 +29,10 @@ const profile = {
     ipfsPublicNode: "https://gateway.moralisipfs.com/ipfs/",
     bankPublicKey: "",
 
-    ipfsNodeLink: "https://5yydudv6dsi8.usemoralis.com:2053/server",
-    ipfsAppID: "IpJVFeZHcdkYv7zvv4gONC8tqb22WWgadn5ELyvp",
-    ipfsMasterKey: "AFVvTuNHjkomikwQ0CXpM3GDWKNMwpG18PKmvOPB",
+    // ipfsNodeLink: "https://5yydudv6dsi8.usemoralis.com:2053/server",
+    // ipfsAppID: "IpJVFeZHcdkYv7zvv4gONC8tqb22WWgadn5ELyvp",
+    // ipfsMasterKey: "AFVvTuNHjkomikwQ0CXpM3GDWKNMwpG18PKmvOPB",
+    ipfsMiddleware: "http://localhost:9997/v1"
 }
 
 const command = {

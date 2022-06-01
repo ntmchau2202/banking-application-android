@@ -13,11 +13,12 @@ import { ConfirmCreateNewSavingsScreen } from './screens/basics/CreateNewSavings
 import ConfirmSettleScreen from './screens/basics/SettleSavingsScreen';
 import HashInformationScreen from './screens/basics/HashInformationScreen';
 import { AccountMenuScreen, EnterNewPasscodeScreen, UnlockPrivateKeyScreen, PrivateKeyScreen } from './screens/basics/AccountInformationScreen';
+import { MoralisProvider } from 'react-moralis';
+import { profile } from './logic/constant/env';
 
 const Stack = createNativeStackNavigator();
 
 const WelcomeScreen = ({navigation}) => {
-
   return ( 
     <View style={styles.buttonContainer}>
        <View style={styles.container}>
@@ -45,8 +46,6 @@ const WelcomeScreen = ({navigation}) => {
 }
 
 export default function App() {
-  <MoralisProvider serverUrl={profile.ipfsNodeLink}
-                      appId={profile.ipfsAppID}/>
   return (
     <NavigationContainer>
       <Stack.Navigator>
