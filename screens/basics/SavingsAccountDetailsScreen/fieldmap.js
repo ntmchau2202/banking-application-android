@@ -15,5 +15,7 @@ export const FieldMap = {
     openTime: "Open time",
     settleTime: "Settle time",
     status: "Status",
-    bankAccountID: "Bank account"
+    bankAccountID: "Bank account",
+    openReceipt: "Open receipt",
+    settleReceipt: "Settle receipt"
 }

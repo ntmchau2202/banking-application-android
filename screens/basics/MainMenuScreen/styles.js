@@ -13,14 +13,15 @@ const styles = StyleSheet.create({
     },
 
     menuText: {
-        paddingTop: 5,
-        paddingLeft: 5,
+        paddingTop: 7,
+        paddingLeft: 3,
         width: '70%',
         flex: 1,
-        borderWidth: 1,
-        alignContent: 'flex-start',
+        // borderWidth: 1,
+        // alignContent: 'flex-start',
+        // justifyContent: 'center',
         fontSize: 20,
-
+        color: '#ffffff'
     },
 
     menuContainer: {
@@ -59,7 +60,14 @@ const styles = StyleSheet.create({
         flex: 0.5,
         width: 0.3 * Dimensions.get('window').width,
         padding: 10,
-    }
+    },
+    button: {
+        height: 40,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 20,
+        margin: 5,
+    },
 
   });
 

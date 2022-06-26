@@ -45,6 +45,7 @@ class SavingsAccount {
     // }
 
     constructor(obj) {
+        console.log("obj received:", obj)
         this.id = obj.savingsaccount_id
         this.type = obj.product_type
         this.period = obj.savings_period
@@ -60,6 +61,8 @@ class SavingsAccount {
         this.settleConfirmed = obj.settle_confirmed
         this.currency = obj.currency
         this.status = obj.confirm_status
+        this.openReceipt = obj.open_ipfs_receipt_hash
+        this.settleReceipt = obj.settle_ipfs_receipt_hash
     }
 }
 

@@ -23,7 +23,7 @@ const UserBar = (props) => {
 const Menu = () => {
     return( 
         <View style={styles.menuContainer}>
-            <MenuOption title='Your account'
+            <MenuOption title='Manage your account'
                         name='My account'
                         content={profile.currentCustomer}/>
             <MenuOption title='Your savings account'
@@ -37,9 +37,10 @@ const Menu = () => {
 }
 
 const MenuOption = (props) => {
+    let bgColor = '#0FA3B1'
     const navigation = useNavigation();
     return (
-        <TouchableOpacity style={styles.menuOption}
+        <TouchableOpacity style={[styles.button, {backgroundColor: bgColor}]}
                           onPress={() => {
                               navigation.navigate(props.name, props.content)
                           }}>

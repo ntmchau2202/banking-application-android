@@ -41,14 +41,21 @@ class Client {
             baseURL: profile.ipfsMiddleware,
             headers: profile.headers,
         })
+        const moralisClient = axios.create({
+            baseURL: profile.moralisUrl,
+            headers: profile.moralisHeaders,
+            timeout: profile.timeOut,
+        })
+
+        const rpcClient = axios.create({
+            baseURL: profile.polygonRpc,
+            timeout: profile.timeOut,
+        })
         this.httpClient = httpClient
         this.blockchainInteractor = blockchainInteractor
         this.ipfsClient = ipfsClient
-        // this.state = {
-        //     httpClient: httpClient,
-        //     blockchainInteractor: blockchainInteractor,
-        //     moralisClient: moralisClient
-        // }
+        this.moralisClient = moralisClient
+        this.rpcClient = rpcClient
     }
 
     createMessage(command, details) {
@@ -70,31 +77,31 @@ class Client {
         this.blockchainInteractor = blockchainInteractor
     }
 
-    // async getTransactionDetailsByHash(type, hash) {
-    //     const instance = this
-    //     let information = null
-    //     try {
-    //         let uri = '/transaction/' + hash 
-    //         await this.moralisClient.get(uri, {
-    //             params: {
-    //                 chain: profile.defaultChain
-    //             }
-    //         }).then(function(response) {
-    //             if(response.status === 200) {
-    //                 let body = response.data.input
-    //                 information = instance.blockchainInteractor.decodeInput(type, body)
-    //                 return information
-    //             } else {
-    //                 throw 'an error occured when fetching transaction details'
-    //             }
-    //         }).catch(function(error) {
-    //             throw error
-    //         })
-    //     } catch(error) {
-    //         throw error
-    //     }   
-    //     return information
-    // }
+    async getTransactionDetailsByHash(type, hash) {
+        const instance = this
+        let information = null
+        try {
+            let uri = '/transaction/' + hash 
+            await this.moralisClient.get(uri, {
+                params: {
+                    chain: profile.defaultChain
+                }
+            }).then(function(response) {
+                if(response.status === 200) {
+                    let body = response.data.input
+                    information = instance.blockchainInteractor.decodeInput(type, body)
+                    return information
+                } else {
+                    throw 'an error occured when fetching transaction details'
+                }
+            }).catch(function(error) {
+                throw error
+            })
+        } catch(error) {
+            throw error
+        }   
+        return information
+    }
 
     // ok
     async login(phone, password) {
@@ -181,12 +188,13 @@ class Client {
                     try {
                         savingsAccountID = response.data.details.savingsaccount_id
                         signedMsgFromBank = response.data.details.signature
+                        console.log("Got data from the bank:", savingsAccountID, signedMsgFromBank)
                         let ipfsHash = response.data.details.receipt
                         // TODO: download file from ipfs to check message
                         let content = await instance.fetchIPFSDoc(ipfsHash)
                         console.log("do we have the content?:", content)
-                        let fetchedObject = JSON.parse(content)
-                        let encryptedReceipt = fetchedObject.receipt 
+                        // let fetchedObject = JSON.parse(content)
+                        let encryptedReceipt = content.receipt 
                         // decrypt = customer private key
                         let customerRSAPrivateKey = await instance.getCustomerPrivateKey()
                         // const rsa = new RSAKey()
@@ -197,9 +205,10 @@ class Client {
                         console.log("decrypted receipt:", decryptedReceipt)
                         let decryptedObject = JSON.parse(decryptedReceipt.message)
                         console.log("decrypted object:", decryptedObject)
+                        let clientMsg = instance.createOpenTransactionMessage(txn, savingsAccountID)
                         console.log("client message:", clientMsg)
                         if (Object.entries(decryptedObject).toString() == Object.entries(clientMsg).toString()) {
-                            [txnHash, clientIPFSReceiptHash] = await instance.blockchainInteractor.openTransaction(clientMsg, signedMsgFromBank)
+                            [txnHash, clientIPFSReceiptHash] = await instance.blockchainInteractor.openTransaction(clientMsg, signedMsgFromBank, ipfsHash)
                         } else {
                             throw 'creation information mismatch'
                         }
@@ -395,7 +404,7 @@ class Client {
                         console.log("decrypted object:", decryptedObject)
                         console.log("client message:", clientMsg)
                         if (Object.entries(decryptedObject).toString() == Object.entries(clientMsg).toString()) {
-                            [txnHash, clientReceiptIPFSHash] = await instance.blockchainInteractor.settleTransaction(clientMsg, signedMsgFromBank)
+                            [txnHash, clientReceiptIPFSHash] = await instance.blockchainInteractor.settleTransaction(clientMsg, signedMsgFromBank, ipfsHash)
                             console.log("Returned txnHash:", txnHash)
                         } else {
                             throw 'settle information mismatch'
@@ -509,6 +518,43 @@ class Client {
         } catch (error) {
             throw error
         }
+        return result
+    }
+
+    async getReceiptHashFromTxn(txnHash) {
+        let result = null 
+        const instance = this
+        try {
+            await this.rpcClient.post("", {
+                jsonrpc: "2.0",
+                method: "eth_getTransactionReceipt",
+                params: [txnHash],
+                id: 1,
+            }).then(async function(response){
+                console.log("what is our response?", response.data)
+                let logData = response.data.result.logs[0].data 
+                let topics = response.data.result.logs[0].topics
+                let decodedLog = instance.blockchainInteractor.abi.parseLog({
+                    topics: topics,
+                    data: logData,
+                })
+                let receiptHash = decodedLog.args[decodedLog.args.length - 1] // TODO: continue this
+                console.log("what is our decoded data?", receiptHash)
+                let content = await instance.fetchIPFSDoc(receiptHash)
+                // try to decrypt this
+                let customerRSAPrivateKey = await instance.getCustomerPrivateKey()
+                const crypt = new Crypt() 
+                console.log("Going to decrypt:", content.receipt)
+                const decryptedReceipt = crypt.decrypt(customerRSAPrivateKey, JSON.stringify(content.receipt))
+                result = [content, decryptedReceipt]
+                return result
+            }).catch(function(error) {
+                throw error
+            })
+        } catch (error) {
+            throw error
+        }
+
         return result
     }
 }

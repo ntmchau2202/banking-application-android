@@ -19,7 +19,9 @@ class SavingsAccount {
             openTime: props.txn.openTime,
             settleTime: props.txn.settleTime,
             savingsType: props.txn.type,
-            status: props.txn.status
+            status: props.txn.status,
+            openReceipt: props.txn.openReceipt,
+            settleReceipt: props.txn.settleReceipt,
         }
     }
 

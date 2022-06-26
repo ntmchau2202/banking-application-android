@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Text, View, TouchableOpacity, FlatList} from 'react-native';
+import { Text, View, TouchableOpacity, FlatList, Alert} from 'react-native';
 // import StyledButton from '../../components/components/StyledButton';
 // import StyledInput from '../../components/components/StyledInput';
 import StyledButton from '../../components/StyledButton/index.js';
@@ -11,22 +11,24 @@ import { Link } from 'native-base';
 import { profile } from '../../../logic/constant/env.js';
 
 const HashInformationScreen = (navigation) => {
+    const navigator = useNavigation()
     let originalObject = navigation.route.params
     // fetch customer & bank signature here
+    console.log("here is the original object:", originalObject)
     return(
         <View style={styles.tableContainer}>
-            <View style={styles.tableRow}>
+            <TouchableOpacity style={styles.tableRow} onPress={() => Alert.alert(originalObject.content)}>
                 <Text style={styles.tableColumnTitleText}>{originalObject.name}</Text>
                 <Text style={styles.tableColumnContentText}> {originalObject.content} </Text>
-            </View>
-            <View style={styles.tableRow}>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.tableRow} onPress={() => Alert.alert(originalObject.sig1)}>
                 <Text style={styles.tableColumnTitleText}>Customer signature</Text>
                 <Text style={styles.tableColumnContentText}> {originalObject.sig1} </Text>
-            </View>
-            <View style={styles.tableRow}>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.tableRow} onPress={() => Alert.alert(originalObject.sig2)}>
                 <Text style={styles.tableColumnTitleText}>Bank signature</Text>
                 <Text style={styles.tableColumnContentText}> {originalObject.sig2} </Text>
-            </View>
+            </TouchableOpacity>
             <StyledButton type='primary'
                             title='View on Polygon scan'
                             onPress={()=>{
@@ -52,6 +54,19 @@ const HashInformationScreen = (navigation) => {
                                     profile.connector.verifyCreation(profile.currentWorkingSavingsAccount)
                                 }
                             }}/>
+            <StyledButton type='secondary'
+                            title='Show receipt'
+                            onPress={() => {
+                                profile.connector.getReceiptHashFromTxn(originalObject.content).then(function(result) {
+                                    console.log("getReceiptHashFromTxn", result[1])
+                                    navigator.navigate('Receipt details', {
+                                        original: result[0],
+                                        decodedBody: result[1]
+                                    })
+                                }).catch(function(error) {
+                                    console.log("Error when fetching and decoding receipt:", error)
+                                })
+                            }} />
         </View>
     )
                    

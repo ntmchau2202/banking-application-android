@@ -44,11 +44,12 @@ const TableRowAttribute = (props) => {
                                         profile.connector.getTransactionDetailsByHash(method, originalObject.content)
                                         .then(function(result){
                                             data = result
+                                            console.log("Here is the data:", data)
                                             navigation.navigate('Hash details', {
                                                 name: props.name,
                                                 content: props.content,
-                                                sig1: data[2][0],
-                                                sig2: data[2][1],
+                                                sig1: data[1][0],
+                                                sig2: data[1][1],
                                             })
                                         }).catch(function(error) { 
                                             throw error

@@ -4,12 +4,13 @@ const profile = {
     headers: {
         'Content-type': "application/json",
     },
-
+    moralisUrl: 'https://deep-index.moralis.io/api/v2',
     moralisHeaders: {
         'Content-type': "application/json",
         'accept': "application/json",
         'X-API-Key': "1u1Pz8EYYUEneV0ot5S9IzK9LmHzZeBlqr7DSGdf31bBq0NpI2nHJDuXiTJkfUR0",
     },
+    polygonRpc: "https://matic-mumbai.chainstacklabs.com",
     defaultChain: 'mumbai',
     // bankPrivateKey: "0ae14037ea4665f2c0042a5d15ebf3b6510965c5da80be7c681412b271537b75", // ganache
     // customerPrivateKey: "37b435866589162c1945b62de3a8d43c7ef809d1f45e8814eeaa5ce1cbc3dcb8", // ganache

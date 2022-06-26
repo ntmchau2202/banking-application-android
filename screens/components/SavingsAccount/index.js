@@ -12,9 +12,8 @@ const SavingsAccountItem = (props) => {
 const SavingsAccountList = (props) => {
     let listSavingsAccount = []
     for (let i = 0; i < props.content.length; i++) {
+        console.log("batch:", i, props.content[i].savingsAccounts)
         listSavingsAccount = listSavingsAccount.concat(props.content[i].savingsAccounts)
-        for (let k = 0; k < props.content[i].length; k++) {
-        }
     }
 
     return (

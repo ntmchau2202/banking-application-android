@@ -1,5 +1,5 @@
 // import { registerRootComponent } from 'expo';
-import { StyleSheet,  View } from 'react-native';
+import { StyleSheet,  View, Image, Dimensions } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator }from '@react-navigation/native-stack';
 import TransactionDetails from './screens/basics/SavingsAccountDetailsScreen';
@@ -12,15 +12,19 @@ import CreateNewSavingsScreen from './screens/basics/CreateNewSavingsScreen';
 import { ConfirmCreateNewSavingsScreen } from './screens/basics/CreateNewSavingsScreen';
 import ConfirmSettleScreen from './screens/basics/SettleSavingsScreen';
 import HashInformationScreen from './screens/basics/HashInformationScreen';
+import ReceiptInformationScreen from './screens/basics/ReceiptInformationScreen';
 import { AccountMenuScreen, EnterNewPasscodeScreen, UnlockPrivateKeyScreen, PrivateKeyScreen } from './screens/basics/AccountInformationScreen';
 import { MoralisProvider } from 'react-moralis';
 import { profile } from './logic/constant/env';
+// import { position } from 'native-base/lib/typescript/theme/styled-system';
 
 const Stack = createNativeStackNavigator();
 
 const WelcomeScreen = ({navigation}) => {
   return ( 
     <View style={styles.buttonContainer}>
+      <Image source={require('./assets/bank_logo.png')}
+              style={styles.image}/>
        <View style={styles.container}>
         <StyledButton
           type='primary'
@@ -48,7 +52,11 @@ const WelcomeScreen = ({navigation}) => {
 export default function App() {
   return (
     <NavigationContainer>
-      <Stack.Navigator>
+      <Stack.Navigator screenOptions={{
+            contentStyle: {
+                backgroundColor: '#b5e2fa'
+            }
+          }}>
         <Stack.Screen component={WelcomeScreen} 
                       name='Welcome screen'/>
         <Stack.Screen component={LoginScreen}
@@ -75,6 +83,8 @@ export default function App() {
                       name='Unlock private key'/>
         <Stack.Screen component={PrivateKeyScreen}
                       name='Private key'/>
+        <Stack.Screen component={ReceiptInformationScreen}
+                      name='Receipt details'/>
       </Stack.Navigator>
     </NavigationContainer>
   );
@@ -86,6 +96,16 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+
+  image: {
+    flex: 0.2,
+    // width: 0.2 * Dimensions.get('window').width, 
+    // height: 0.2 * Dimensions.get('window').height,
+    alignItems: 'center',
+    justifyContent: 'center',
+    bottom: 120,
+    left: Dimensions.get('window').width / 6.3
   },
 
   buttonContainer: {

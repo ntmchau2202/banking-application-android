@@ -7,8 +7,8 @@ const StyledButton = (props) => {
     const type = props.type;
     const btnText = props.title;
     const onPressFn = props.onPress;
-    const bgColor = type === 'primary' ? 'black' : 'grey';
-    const fontColor = 'white'
+    const bgColor = type === 'primary' ? '#0FA3B1' : '#EDDEA4';
+    const fontColor = type === 'primary' ? '#FFFFFF' : '#000000';
     return (
         <View style={styles.containter}>
             <Pressable 

@@ -87,10 +87,6 @@ class BlockchainInteractor {
         const bankPublicKey = await this.getBankPublicKey()
         const crypt = new Crypt()
         const receiptEncrypted = crypt.encrypt(bankPublicKey, receiptString)
-        // const rsa = new RSAKey()
-        // rsa.setPublicString(bankPublicKey)
-        // const receiptEncrypted = rsa.decrypt(receiptString)
-        // const receiptEncrypted = RSA.encrypt(receiptString, bankPublicKey)
         return JSON.parse(receiptEncrypted)
     }
 
@@ -125,7 +121,7 @@ class BlockchainInteractor {
         // return result.path
     }
 
-    async openTransaction(txn, bankSignedTxn) {
+    async openTransaction(txn, bankSignedTxn, bankIpfsHash) {
         // verify bankSignedTxn
         if (!this.wallet.verifier.verifyMessage(txn, bankSignedTxn, profile.bankOwner)) {
             throw 'WARNING: invalid bank signature on message! Please contact the bank for more information!'
@@ -146,7 +142,7 @@ class BlockchainInteractor {
                 signature,
                 bankSignedTxn,
             ],
-            ipfsHash,
+            bankIpfsHash,
             {
                 gasPrice: fetchedGasPrice,
                 gasLimit: ethers.utils.hexlify(estimatedGas)
@@ -165,7 +161,7 @@ class BlockchainInteractor {
         }
     }
 
-    async settleTransaction (txn, bankSignedTxn)  {
+    async settleTransaction (txn, bankSignedTxn, bankIpfsHash)  {
         // verify bankSignedTxn
         if (!this.wallet.verifier.verifyMessage(txn, bankSignedTxn, profile.bankOwner)) {
             throw 'WARNING: invalid bank signature on message! Please contact the bank for more information!'
@@ -185,23 +181,25 @@ class BlockchainInteractor {
         const fetchedGasPrice = this.wallet.node.getGasPrice()
         const estimatedGas = 3000000
 
-        let pending = await this.contract.BroadcastSettleAccountTransaction(
+        let receipt = await this.contract.BroadcastSettleAccountTransaction(
             hashedTxn,
             [
                 signature,
                 bankSignedTxn,
             ], 
-            ipfsHash, 
+            bankIpfsHash, 
             {
                 gasPrice: fetchedGasPrice,
                 gasLimit: ethers.utils.hexlify(estimatedGas)
             }
         )
 
-        let receipt = null 
-        while (receipt == null) {
-            receipt = await this.wallet.node.getTransactionReceipt(pending.hash)
-        }
+        // let receipt = null 
+        // while (receipt == null) {
+        //     receipt = await this.wallet.node.getTransactionReceipt(pending.hash)
+        // }
+
+        await receipt.wait()
 
         if (receipt.status == 1) {
             return [receipt.transactionHash, ipfsHash]
