@@ -1,7 +1,7 @@
 export const config = {
-    ipfsNodeLink: "https://5yydudv6dsi8.usemoralis.com:2053/server",
-    ipfsAppID: "IpJVFeZHcdkYv7zvv4gONC8tqb22WWgadn5ELyvp",
-    ipfsMasterKey: "AFVvTuNHjkomikwQ0CXpM3GDWKNMwpG18PKmvOPB",
+    ipfsNodeLink: "https://nugsimroldk4.usemoralis.com:2053/server",
+    ipfsAppID: "HG0GUqeomvvMmsgZIZDkDFRQH9W9ND0kNBOFJIOe",
+    ipfsMasterKey: "7VDrOoZe2BtGmIwm1uTRJMFOX6mOQjPHw7jq1xxn",
     version: "/v1",
     port: 9997
 }
